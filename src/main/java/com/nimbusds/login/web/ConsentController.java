@@ -1,0 +1,147 @@
+package com.nimbusds.login.web;
+
+import com.nimbusds.login.rest.utils.CookieManager;
+import com.nimbusds.login.service.C2idAuthService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+/**
+ * Consent page controller. Lets the subject (end-user) grant or deny the requested OpenID Connect
+ * scopes and claims, and lets the subject log out and start over.
+ *
+ * @author Alex Bogdanovski [alex@erudika.com]
+ */
+@Controller
+public class ConsentController {
+
+	private final Logger logger = LoggerFactory.getLogger(ConsentController.class);
+	private final C2idAuthService authService;
+	private final AuthzResponseDispatcher dispatcher;
+
+	public ConsentController(C2idAuthService authService, AuthzResponseDispatcher dispatcher) {
+		this.authService = authService;
+		this.dispatcher = dispatcher;
+	}
+
+	@GetMapping("/consent")
+	public String consent(HttpServletRequest request, Model model,
+			@RequestParam(required = false) String authSessionId) {
+		Map<String, Object> authzResponse = getAuthzResponse(request);
+		if (authzResponse == null) {
+			return "redirect:/err/" + ErrorMessages.encode("Authentication failed.");
+		}
+		model.addAttribute("authSessionId", authSessionId);
+		addConsentModel(model, authzResponse);
+		return "consent";
+	}
+
+	@PostMapping("/consent")
+	public String submitConsent(HttpServletRequest request, HttpServletResponse response, Model model,
+			@RequestParam String authSessionId,
+			@RequestParam(name = "scope", required = false) List<String> scopes,
+			@RequestParam(name = "claim", required = false) List<String> claims) throws IOException {
+		// The "openid" scope is always granted
+		List<String> scopeList = new ArrayList<>(scopes != null ? scopes : Collections.emptyList());
+		if (!scopeList.contains("openid")) {
+			scopeList.add(0, "openid");
+		}
+		Map<String, Object> body = new HashMap<>(2);
+		body.put("scope", scopeList);
+		body.put("claims", claims != null ? claims : Collections.emptyList());
+		logger.debug("Submitting subject authentication (sid={}) to Connect2id server: {}", authSessionId, body);
+		Map<String, Object> authzResponse = authService.updateAuthRequest(authSessionId, body);
+		return dispatcher.dispatch(authzResponse, request, response, model);
+	}
+
+	/**
+	 * The subject (end-user) denies the authorisation request.
+	 */
+	@PostMapping("/consent/deny")
+	public String denyAuthorization(HttpServletRequest request, HttpServletResponse response, Model model,
+			@RequestParam String authSessionId) throws IOException {
+		logger.debug("Authorization denied, submitting request to Connect2id server...");
+		Map<String, Object> authzResponse = authService.cancelAuthRequest(authSessionId);
+		return dispatcher.dispatch(authzResponse, request, response, model);
+	}
+
+	/**
+	 * The subject (end-user) logs out and the login flow starts over with the original query string.
+	 */
+	@PostMapping("/consent/logout")
+	public String logoutSubject(HttpServletRequest request, HttpServletResponse response, Model model)
+			throws IOException {
+		logger.debug("Submitting subject logout request to Connect2id server.");
+		String sessionId = CookieManager.getCookie(request, authService.getConfig().getCookieName());
+		authService.logoutSubject(sessionId);
+		CookieManager.removeCookie(authService.getConfig().getCookieName(), response);
+		// The session id cookie was removed, so the flow starts with a blank session
+		String queryString = (String) request.getSession().getAttribute("c2idQueryString");
+		Map<String, Object> authzResponse = authService.initAuthRequest(queryString, null);
+		return dispatcher.dispatch(authzResponse, request, response, model);
+	}
+
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> getAuthzResponse(HttpServletRequest request) {
+		return (Map<String, Object>) request.getSession().getAttribute("c2idAuthzResponse");
+	}
+
+	/**
+	 * Flattens the Connect2id consent response into the model used by the consent template.
+	 */
+	private void addConsentModel(Model model, Map<String, Object> authzResponse) {
+		Map<String, Object> subSession = nestedMap(authzResponse, "sub_session");
+		model.addAttribute("authenticatedUser", subSession != null ? subSession.get("data") : null);
+		Map<String, Object> client = nestedMap(authzResponse, "client");
+		if (client != null) {
+			model.addAttribute("clientName", client.get("name"));
+			model.addAttribute("clientId", client.get("client_id"));
+		}
+		model.addAttribute("newScopes", nestedList(authzResponse, "scope", "new"));
+		model.addAttribute("consentedScopes", nestedList(authzResponse, "scope", "consented"));
+		model.addAttribute("newEssentialClaims", nestedList(authzResponse, "claims", "new", "essential"));
+		model.addAttribute("newVoluntaryClaims", nestedList(authzResponse, "claims", "new", "voluntary"));
+		model.addAttribute("consentedEssentialClaims",
+				nestedList(authzResponse, "claims", "consented", "essential"));
+		model.addAttribute("consentedVoluntaryClaims",
+				nestedList(authzResponse, "claims", "consented", "voluntary"));
+	}
+
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> nestedMap(Map<String, Object> source, String... path) {
+		Map<String, Object> current = source;
+		for (String key : path) {
+			if (current == null) {
+				return null;
+			}
+			current = (Map<String, Object>) current.get(key);
+		}
+		return current;
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<String> nestedList(Map<String, Object> source, String... path) {
+		Map<String, Object> parent = nestedMap(source, path.length > 1
+				? java.util.Arrays.copyOf(path, path.length - 1) : new String[0]);
+		if (parent == null) {
+			return Collections.emptyList();
+		}
+		Object value = parent.get(path[path.length - 1]);
+		if (value instanceof List) {
+			return (List<String>) value;
+		}
+		return Collections.emptyList();
+	}
+}

@@ -1,0 +1,58 @@
+# ===================================================================
+# Spring Boot configuration for the "dev" profile.
+#
+# This configuration overrides the application.yml file.
+# ===================================================================
+
+gg:
+    jte:
+        # Hot-reload the JTE templates on every change (requires a JDK)
+        developmentMode: true
+
+# ===================================================================
+# To enable SSL, generate a certificate using:
+# keytool -genkey -alias c2idlogin -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650
+#
+# Then, modify the server.ssl properties so that your "server" configuration looks like:
+#
+# server:
+#    port: 8443
+#    ssl:
+#        key-store: keystore.p12
+#        key-store-password: <your-password>
+#        keyStoreType: PKCS12
+#        keyAlias: c2idlogin
+# ===================================================================
+server:
+    port: 8000
+
+# ===================================================================
+# Application specific properties
+# Add your own application properties here, see the ApplicationProperties class
+# ===================================================================
+
+c2id:
+    endpoint: http://localhost:8080/c2id
+    cookieName: sid
+    authz:
+        # Connect2id authorisation session API vars
+        # See https://connect2id.com/products/server/docs/integration/authz-session
+        resourcePath: /authz-sessions/rest/v3
+        accessToken: ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6
+        longLived: true
+    session:
+        # Connect2id user session store API vars
+        # See https://connect2id.com/products/server/docs/integration/session-store
+        resourcePath: /session-store/rest/v2
+        accessToken: ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6
+    ldapAuth:
+        # LdapAuth API var (username + password verification against LDAP directory)
+        # See https://connect2id.com/products/ldapauth/web-api
+        endpoint: http://localhost:8080/ldapauth/
+        apiKey: ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6
+    logout:
+        # Logout (End-Session) vars
+        # See https://connect2id.com/products/server/docs/integration/logout-session
+        resourcePath: /logout-sessions/rest/v1
+        accessToken: ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6
+        #redirectUri: optional

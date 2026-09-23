@@ -1,0 +1,8 @@
+version: '2'
+services:
+    c2idlogin-app:
+        image: c2idlogin
+        environment:
+            - SPRING_PROFILES_ACTIVE=prod
+        ports:
+            - 8080:8080

@@ -1,0 +1,66 @@
+# ===================================================================
+# Spring Boot configuration.
+#
+# This configuration will be overridden by the Spring profile you use,
+# for example application-dev.yml if you use the "dev" profile.
+# ===================================================================
+
+# ===================================================================
+# Standard Spring Boot properties.
+# Full reference is available at:
+# https://docs.spring.io/spring-boot/4.1/reference/html/application-properties/index.html
+# ===================================================================
+
+spring:
+    application:
+        name: c2idlogin
+    profiles:
+        # The commented value for `active` can be replaced with valid Spring profiles to load.
+        # Otherwise, it will be filled in by maven when building the WAR file
+        # Either way, it can be overridden by `--spring.profiles.active` value passed in the commandline or `-Dspring.profiles.active` set in `JAVA_OPTS`
+        active: #spring.profiles.active#
+    messages:
+        basename: i18n/messages
+
+server:
+    error:
+        path: /error
+    servlet:
+        session:
+            cookie:
+                http-only: true
+
+info:
+    project:
+        version: #project.version#
+
+gg:
+    jte:
+        templateLocation: src/main/jte
+
+c2id:
+    endpoint: http://127.0.0.1:8080/c2id
+    cookieName: sid
+    #authenticatorClass:
+    authz:
+        # Connect2id authorisation session API vars
+        # See https://connect2id.com/products/server/docs/integration/authz-session
+        resourcePath: /authz-sessions/rest/v3
+        accessToken: ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6
+        longLived: true
+    session:
+        # Connect2id user session store API vars
+        # See https://connect2id.com/products/server/docs/integration/session-store
+        resourcePath: /session-store/rest/v2
+        accessToken: ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6
+    ldapAuth:
+        # LdapAuth API var (username + password verification against LDAP directory)
+        # See https://connect2id.com/products/ldapauth/web-api
+        endpoint: http://localhost:8080/ldapauth/
+        apiKey: f70defbeb88141f88138bea52b6e1b9c
+    logout:
+        # Logout (End-Session) vars
+        # See https://connect2id.com/products/server/docs/integration/logout-session
+        resourcePath: /logout-sessions/rest/v1
+        accessToken: ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6
+        #redirectUri: optional
