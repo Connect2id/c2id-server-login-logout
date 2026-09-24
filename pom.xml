@@ -9,10 +9,10 @@
 	</parent>
 
 	<groupId>com.nimbusds</groupId>
-	<artifactId>c2id-login</artifactId>
+	<artifactId>c2id-server-login-logout</artifactId>
 	<version>5.0.0</version>
 	<packaging>war</packaging>
-	<name>Sample Connect2id server login &amp; logout page</name>
+	<name>Connect2id server login &amp; logout page</name>
 
 	<licenses>
 		<license>
@@ -35,23 +35,16 @@
 	</developers>
 
 	<scm>
-		<connection>scm:git:https://bitbucket.org/connect2id/connect2id-login-angularjs.git</connection>
-		<developerConnection>scm:git:git@bitbucket.org:connect2id/connect2id-login-angularjs.git</developerConnection>
-		<url>https://bitbucket.org/connect2id/connect2id-login-angularjs</url>
-		<tag></tag>
+		<connection>scm:git:https://github.com/Connect2id/c2id-server-login-logout.git</connection>
+		<developerConnection>scm:git:git@github.com:Connect2id/c2id-server-login-logout.git</developerConnection>
+		<url>https://github.com/Connect2id/c2id-server-login-logout</url>
+		<tag>HEAD</tag>
 	</scm>
 
 	<issueManagement>
 		<system>GitHub</system>
-		<url>https://bitbucket.org/connect2id/connect2id-login-angularjs/issues</url>
+		<url>https://github.com/Connect2id/c2id-server-login-logout/issues</url>
 	</issueManagement>
-
-	<distributionManagement>
-		<repository>
-			<id>c2id</id>
-			<url>https://nexus.c2id.com/repository/maven-releases/</url>
-		</repository>
-	</distributionManagement>
 
 	<properties>
 		<argLine>-Djava.security.egd=file:/dev/./urandom -Xmx256m</argLine>
