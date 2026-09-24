@@ -1,7 +1,4 @@
 
- ${AnsiColor.CYAN}                                 _  ${AnsiColor.GREEN} ___ ${AnsiColor.CYAN} _     _
- ${AnsiColor.CYAN}                                | | ${AnsiColor.GREEN}|__ \                 (_)   | |
- ${AnsiColor.CYAN}  ___ ___  _ __  _ __   ___  ___| |_${AnsiColor.GREEN}   ) )${AnsiColor.CYAN}_  __| |
- ${AnsiColor.CYAN} / __/ _ \| '_ \| '_ \ / _ \/ __| __|${AnsiColor.GREEN} / /${AnsiColor.CYAN}| |/ _` |
- ${AnsiColor.CYAN}| (_| (_) | | | | | | |  __/ (__| |_${AnsiColor.GREEN} / /_${AnsiColor.CYAN}| | (_| |
- ${AnsiColor.CYAN} \___\___/|_| |_|_| |_|\___|\___|\__${AnsiColor.GREEN}|____${AnsiColor.CYAN}|_|\__,_|${AnsiColor.BRIGHT_BLUE}  Login ${application.formatted-version}${AnsiColor.DEFAULT}
+░█▀▀░█▀█░█▀█░█▀█░█▀▀░█▀▀░▀█▀░▀▀▄░▀█▀░█▀▄
+░█░░░█░█░█░█░█░█░█▀▀░█░░░░█░░▄▀░░░█░░█░█
+░▀▀▀░▀▀▀░▀░▀░▀░▀░▀▀▀░▀▀▀░░▀░░▀▀▀░▀▀▀░▀▀░ ${AnsiColor.BRIGHT_BLUE}  Login & Logout Page ${application.formatted-version}${AnsiColor.DEFAULT}

@@ -38,7 +38,7 @@ public class LoginController {
 	@GetMapping("/login")
 	public String login(HttpServletRequest request, Model model) {
 		model.addAttribute("actionUrl", currentUrl(request));
-		model.addAttribute("cancelUrl", "/login/cancel" + querySuffix(request));
+		model.addAttribute("cancelUrl", request.getContextPath() + "/login/cancel" + querySuffix(request));
 		model.addAttribute("authenticationError", false);
 		return "login";
 	}
@@ -90,12 +90,12 @@ public class LoginController {
 		model.addAttribute("authenticationError", true);
 		model.addAttribute("username", user.getUsername());
 		model.addAttribute("actionUrl", currentUrl(request));
-		model.addAttribute("cancelUrl", "/login/cancel" + querySuffix(request));
+		model.addAttribute("cancelUrl", request.getContextPath() + "/login/cancel" + querySuffix(request));
 		return "login";
 	}
 
 	private String currentUrl(HttpServletRequest request) {
-		return "/login" + querySuffix(request);
+		return request.getContextPath() + "/login" + querySuffix(request);
 	}
 
 	private String querySuffix(HttpServletRequest request) {

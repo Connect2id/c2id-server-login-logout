@@ -12,7 +12,7 @@
 	<artifactId>c2id-login</artifactId>
 	<version>5.0.0</version>
 	<packaging>war</packaging>
-	<name>Sample Connect2id server login page</name>
+	<name>Sample Connect2id server login &amp; logout page</name>
 
 	<licenses>
 		<license>
@@ -264,6 +264,20 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+
+			<!-- Keep the external Tomcat application name in the WAR descriptor. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<webResources>
+						<resource>
+							<directory>src/main/webapp</directory>
+							<filtering>true</filtering>
+						</resource>
+					</webResources>
+				</configuration>
 			</plugin>
 
 			<plugin>

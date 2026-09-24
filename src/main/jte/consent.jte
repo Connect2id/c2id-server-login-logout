@@ -13,15 +13,21 @@
 @param List<String> newVoluntaryClaims
 @param List<String> consentedEssentialClaims
 @param List<String> consentedVoluntaryClaims
+@param String contextPath
+@param String imagesPath
+@param String stylesPath
+@param String scriptsPath
 
-@template.layout(title = msg.get("consent.title"), msg = msg, content = @`
+@template.layout(title = msg.get("consent.title"), msg = msg, contextPath = contextPath,
+	imagesPath = imagesPath, stylesPath = stylesPath, scriptsPath = scriptsPath, content = @`
 	<div class="row voffset6">
 		<div class="col-md-12 text-center">
 			@if(authenticatedUser != null)
-				<img class="rounded-circle" width="50" height="50" alt="Profile picture" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCABQAFADASIAAhEBAxEB/8QAGwABAAIDAQEAAAAAAAAAAAAAAAEGBAUHAgP/xAAtEAABAwIEBAYBBQAAAAAAAAABAAIDBBEFITGBEkFRYQYTQnGRwVIiMqGx8P/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwDreSlN03QRzU2TdN0CybL7QUdTOLwwSvb1a0kfOimejqYBeaCVg6uabfOiD4bJsm6boGybJum6AiIgK0YBgrPKbU1jeJzs2MIyA6nutBhcAqcRp4nD9Ln5jsM7fC6H7IAAAAFgAhAIsdFKIK3j2CMdE+po28L25uYBYO9h1vWXTVz3F4BTYlURNyaHZDoDnZBiIiICIiDMwaUQ4rTSO0D7Z8r5fa6DsuYjVXPAMWZVxMhncBUtyzP7+/ug3abKEQTsqBjkomxape0i3Fw362AH0rNj2LMo4nRQuDqlwtYem/NUo63OpQSiIgbpui9QxvmlZHGCXuNgEH2oKOaun8uAX5ucdArhh2CUtGA4tEs35vGh7DksjC6JlBStiZm7VzralZqBum6Ig1WI4LS1gc4NEUx9bBqe45qn19HNQz+XOLc2uGhVRFh4pRMr6V0T8natdbQoOf7puvU0b4ZXxyAh7TYheUBb/wAIUvmVMlQ4ZRjhb7nX/d1oFdPCkYZhLXfm9x+Db6QblETZAUKVCCVCnZQgqfi+l4KmOoaMpBwu9xp/H9Kvq6eK4+PCXOPoe1w3NvtUtB//2Q==">
+				<img class="rounded-circle" width="50" height="50" alt="Profile picture"
+						 src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCABQAFADASIAAhEBAxEB/8QAGwABAAIDAQEAAAAAAAAAAAAAAAEGBAUHAgP/xAAtEAABAwIEBAYBBQAAAAAAAAABAAIDBBEFITGBEkFRYQYTQnGRwVIiMqGx8P/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwDreSlN03QRzU2TdN0CybL7QUdTOLwwSvb1a0kfOimejqYBeaCVg6uabfOiD4bJsm6boGybJum6AiIgK0YBgrPKbU1jeJzs2MIyA6nutBhcAqcRp4nD9Ln5jsM7fC6H7IAAAAFgAhAIsdFKIK3j2CMdE+po28L25uYBYO9h1vWXTVz3F4BTYlURNyaHZDoDnZBiIiICIiDMwaUQ4rTSO0D7Z8r5fa6DsuYjVXPAMWZVxMhncBUtyzP7+/ug3abKEQTsqBjkomxape0i3Fw362AH0rNj2LMo4nRQuDqlwtYem/NUo63OpQSiIgbpui9QxvmlZHGCXuNgEH2oKOaun8uAX5ucdArhh2CUtGA4tEs35vGh7DksjC6JlBStiZm7VzralZqBum6Ig1WI4LS1gc4NEUx9bBqe45qn19HNQz+XOLc2uGhVRFh4pRMr6V0T8natdbQoOf7puvU0b4ZXxyAh7TYheUBb/wAIUvmVMlQ4ZRjhb7nX/d1oFdPCkYZhLXfm9x+Db6QblETZAUKVCCVCnZQgqfi+l4KmOoaMpBwu9xp/H9Kvq6eK4+PCXOPoe1w3NvtUtB//2Q==">
 				<h3 class="mt-2">${String.valueOf(authenticatedUser.get("name"))}</h3>
 				<h5><tt>${String.valueOf(authenticatedUser.get("email"))}</tt></h5>
-				<form method="post" action="/consent/logout" class="voffset1">
+				<form method="post" action="${contextPath}/consent/logout" class="voffset1">
 					<input type="hidden" name="authSessionId" value="${authSessionId}">
 					<button type="submit" class="btn btn-link">${msg.get("global.logout")}</button>
 				</form>
@@ -123,14 +129,14 @@
 
 	<div class="row voffset4">
 		<div class="col-6">
-			<form id="consentForm" method="post" action="/consent">
+			<form id="consentForm" method="post" action="${contextPath}/consent">
 				<input type="hidden" name="authSessionId" value="${authSessionId}">
 				<input type="hidden" name="scope" value="openid">
 				<button type="submit" class="btn btn-primary w-100">${msg.get("consent.form.button")}</button>
 			</form>
 		</div>
 		<div class="col-6">
-			<form method="post" action="/consent/deny">
+			<form method="post" action="${contextPath}/consent/deny">
 				<input type="hidden" name="authSessionId" value="${authSessionId}">
 				<button type="submit" class="btn btn-outline-primary w-100">${msg.get("global.cancel")}</button>
 			</form>

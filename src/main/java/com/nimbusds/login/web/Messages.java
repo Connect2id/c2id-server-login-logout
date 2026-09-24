@@ -1,5 +1,6 @@
 package com.nimbusds.login.web;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -23,6 +24,26 @@ public class Messages {
 	@ModelAttribute("msg")
 	public Messages messages() {
 		return this;
+	}
+
+	@ModelAttribute("contextPath")
+	public String contextPath(HttpServletRequest request) {
+		return request.getContextPath();
+	}
+
+	@ModelAttribute("imagesPath")
+	public String imagesPath(HttpServletRequest request) {
+		return request.getContextPath() + "/img";
+	}
+
+	@ModelAttribute("stylesPath")
+	public String stylesPath(HttpServletRequest request) {
+		return request.getContextPath() + "/css";
+	}
+
+	@ModelAttribute("scriptsPath")
+	public String scriptsPath(HttpServletRequest request) {
+		return request.getContextPath() + "/js";
 	}
 
 	/**
