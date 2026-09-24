@@ -64,4 +64,5 @@ c2id:
 #        # See https://connect2id.com/products/server/docs/integration/logout-session
 #        resourcePath: /logout-sessions/rest/v1
 #        accessToken: ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6
-#        #redirectUri: optional
+#        # Optional fallback when the RP does not provide post_logout_redirect_uri.
+#        # defaultPostLogoutRedirectUri: https://example.com/

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.login.config.ApplicationProperties;
 import com.nimbusds.login.domain.AuthenticationResult;
 import com.nimbusds.login.domain.User;
-import com.nimbusds.login.rest.errors.AuthenticationException;
+import com.nimbusds.login.auth.AuthenticationException;
 import com.nimbusds.login.spi.UserAuthenticator;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

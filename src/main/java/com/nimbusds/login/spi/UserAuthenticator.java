@@ -1,6 +1,6 @@
 package com.nimbusds.login.spi;
 
-import com.nimbusds.login.rest.errors.AuthenticationException;
+import com.nimbusds.login.auth.AuthenticationException;
 import com.nimbusds.login.domain.AuthenticationResult;
 import com.nimbusds.login.domain.User;
 

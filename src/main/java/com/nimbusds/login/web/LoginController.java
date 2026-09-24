@@ -1,8 +1,8 @@
 package com.nimbusds.login.web;
 
 import com.nimbusds.login.domain.User;
-import com.nimbusds.login.rest.errors.AuthenticationException;
-import com.nimbusds.login.rest.errors.InvalidCredentialsException;
+import com.nimbusds.login.auth.AuthenticationException;
+import com.nimbusds.login.auth.InvalidCredentialsException;
 import com.nimbusds.login.service.C2idAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

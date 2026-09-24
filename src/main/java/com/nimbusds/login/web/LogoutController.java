@@ -119,7 +119,11 @@ public class LogoutController {
 				CookieManager.removeCookie(authService.getConfig().getCookieName(), response);
 			}
 			model.addAttribute("sessionClosed", sessionClosed);
-			model.addAttribute("redirectUrl", logoutResponse.get("post_logout_redirect_uri"));
+			String redirectUrl = (String) logoutResponse.get("post_logout_redirect_uri");
+			if (StringUtils.isBlank(redirectUrl)) {
+				redirectUrl = authService.getConfig().getLogout().getDefaultPostLogoutRedirectUri();
+			}
+			model.addAttribute("redirectUrl", redirectUrl);
 			model.addAttribute("frontChannelLogoutUrls", frontChannelLogoutUrls(logoutResponse));
 			return "logoutEnd";
 		}

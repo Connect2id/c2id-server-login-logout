@@ -70,6 +70,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
 		<!-- Marked provided so the WAR can also be deployed to an external
 			Tomcat; the Spring Boot plugin puts it in lib-provided so
 			"java -jar" still works for the executable WAR. -->

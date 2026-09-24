@@ -135,7 +135,7 @@ public class ApplicationProperties {
 
 		private String resourcePath;
 		private String accessToken;
-		private String redirectUri;
+		private String defaultPostLogoutRedirectUri;
 
 		public String getResourcePath() {
 			return resourcePath;
@@ -153,12 +153,12 @@ public class ApplicationProperties {
 			this.accessToken = accessToken;
 		}
 
-		public String getRedirectUri() {
-			return redirectUri;
+		public String getDefaultPostLogoutRedirectUri() {
+			return defaultPostLogoutRedirectUri;
 		}
 
-		public void setRedirectUri(String redirectUri) {
-			this.redirectUri = redirectUri;
+		public void setDefaultPostLogoutRedirectUri(String defaultPostLogoutRedirectUri) {
+			this.defaultPostLogoutRedirectUri = defaultPostLogoutRedirectUri;
 		}
 	}
 }
