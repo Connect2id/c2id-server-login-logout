@@ -102,7 +102,9 @@
 						@endif
 					</div>
 					<div class="col-md-6">
+						@if(!consentedEssentialClaims.isEmpty() || !consentedVoluntaryClaims.isEmpty())
 						<strong>${msg.get("consent.previous")}</strong>
+						@endif
 						@if(!consentedEssentialClaims.isEmpty())
 							<div class="mt-2">
 								<strong>${msg.get("consent.essential")}:</strong>

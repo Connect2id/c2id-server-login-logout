@@ -1,13 +1,15 @@
 @import java.util.Map
+@import com.nimbusds.login.web.Messages
 
 @param String uri
 @param Map<String, Object> form
+@param Messages msg
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Redirecting...</title>
+	<title>${msg.get("global.redirecting")}</title>
 </head>
 <body onload="document.getElementById('Form1').submit()">
 	<form id="Form1" method="post" action="${uri}">

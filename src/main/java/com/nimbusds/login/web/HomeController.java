@@ -50,55 +50,6 @@ public class HomeController {
 		return "home";
 	}
 
-	@PostMapping("/logout")
-	public String logout(HttpServletRequest request, Model model) {
-		String sessionId = CookieManager.getCookie(request, authService.getConfig().getCookieName());
-		logger.debug("Logout session (sid={}): {}", sessionId);
-		try {
-			Map<String, Object> logoutResponse = authService.logoutSession("", sessionId);
-			String type = (logoutResponse != null) ? (String) logoutResponse.get("type") : null;
-			if ("confirm".equals(type)) {
-				model.addAttribute("logoutPrompt", true);
-			} else if (logoutResponse != null && ("error".equals(type)
-					|| logoutResponse.containsKey("error"))) {
-				Object error = logoutResponse.containsKey("error_description")
-						? logoutResponse.get("error_description") : logoutResponse.get("error");
-				model.addAttribute("logoutError", error);
-			} else {
-				logger.debug("Logout session response: {}", logoutResponse);
-			}
-		} catch (IOException e) {
-			logger.error("Logout session failed: {}", e.getMessage());
-			model.addAttribute("logoutError", e.getMessage());
-		}
-		model.addAttribute("authenticatedUser", getAuthenticatedUser(request));
-		return "home";
-	}
-
-	@PostMapping("/logout/confirm")
-	public String logoutConfirm(HttpServletRequest request, HttpServletResponse response,
-			Model model) throws IOException {
-		String sessionId = CookieManager.getCookie(request, authService.getConfig().getCookieName());
-		logger.debug("Logout session confirm (sid={}): {}", sessionId);
-		Map<String, Object> logoutResponse = authService.logoutSessionConfirm(sessionId);
-		if (logoutResponse != null && "end".equals(logoutResponse.get("type"))) {
-			CookieManager.removeCookie(authService.getConfig().getCookieName(), response);
-			String redirectUri = (String) logoutResponse.get("post_logout_redirect_uri");
-			if (StringUtils.isNotBlank(redirectUri)) {
-				return "redirect:" + redirectUri;
-			}
-			model.addAttribute("logoutEnd", true);
-			return "home";
-		}
-		logger.debug("Logout session confirm response: {}", logoutResponse);
-		return "redirect:/";
-	}
-
-	@PostMapping("/logout/cancel")
-	public String logoutCancel() {
-		return "redirect:/";
-	}
-
 	/**
 	 * @param request HTTP request
 	 * @return the data of the currently authenticated subject (end-user), or null if not present

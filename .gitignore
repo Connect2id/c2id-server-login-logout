@@ -120,3 +120,4 @@ nbactions.xml
 nbactions-*.xml
 nb-configuration.xml
 /nbproject/
+test.sh

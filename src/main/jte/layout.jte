@@ -28,14 +28,14 @@
 <body>
 <header class="auth-header">
 	<div class="container auth-header-inner">
-		<a class="auth-brand" href="${contextPath}/" aria-label="Connect2id home">
-			<img src="${imagesPath}/connect2id-logo.svg" width="158" height="19" alt="Connect2id">
+		<a class="auth-brand" href="${contextPath}/" aria-label="${msg.get("global.connect2idHome")}">
+			<img src="${imagesPath}/connect2id-logo.svg" width="158" height="19" alt="${msg.get("global.connect2idLogo")}">
 		</a>
 		@if(authenticatedUser != null)
 			@template.user(msg = msg, authSessionId = authSessionId, authenticatedUser = authenticatedUser,
 				contextPath = contextPath, logoutUrl = logoutUrl)
 		@else
-			<span class="auth-header-label">Sample Login Page</span>
+			<span class="auth-header-label">${msg.get("global.sampleLoginPage")}</span>
 		@endif
 	</div>
 </header>

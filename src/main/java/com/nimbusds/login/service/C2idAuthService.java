@@ -7,6 +7,7 @@ import com.nimbusds.login.domain.User;
 import com.nimbusds.login.rest.errors.AuthenticationException;
 import com.nimbusds.login.spi.UserAuthenticator;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.util.EntityUtils;
 import org.apache.http.entity.ByteArrayEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -211,9 +213,31 @@ public class C2idAuthService {
 	 * @throws IOException If the web API request failed.
 	 */
 	public Map<String, Object> logoutSession(String queryString, String sessionId) throws IOException {
-		HashMap<String, String> body = new HashMap<>(2);
-		body.put("sub_sid", sessionId);
-		body.put("query", queryString);
+		return logoutSession(queryString, sessionId, null);
+	}
+
+	/**
+	 * Posts a new request to the logout session API, optionally marking it as
+	 * initiated by the OpenID provider.
+	 *
+	 * @param queryString the original logout request parameters, or {@code null}
+	 * @param sessionId the subject session ID, or {@code null}
+	 * @param initiator {@code OP} for provider-initiated logout, or {@code null}
+	 * @return a logout prompt, end or error message
+	 * @throws IOException if the web API request failed
+	 */
+	public Map<String, Object> logoutSession(String queryString, String sessionId, String initiator)
+			throws IOException {
+		Map<String, Object> body = new HashMap<>(3);
+		if (sessionId != null) {
+			body.put("sub_sid", sessionId);
+		}
+		if (queryString != null) {
+			body.put("query", queryString);
+		}
+		if (initiator != null) {
+			body.put("initiator", initiator);
+		}
 		return Request.Post(config.getEndpoint() + config.getLogout().getResourcePath()).
 				addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + config.getAuthz().getAccessToken()).
 				addHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8").
@@ -229,11 +253,15 @@ public class C2idAuthService {
 	 * @return the logout end message
 	 * @throws IOException If the web API request failed.
 	 */
-	public Map<String, Object> logoutSessionConfirm(String sessionId) throws IOException {
-		return Request.Put(config.getEndpoint() + config.getLogout().getResourcePath() + "/" + sessionId).
+	public Map<String, Object> logoutSessionConfirm(String logoutSessionId, boolean opLogout) throws IOException {
+		Map<String, Boolean> body = new HashMap<>(2);
+		body.put("op_logout", opLogout);
+		// Keep compatibility with Connect2id server versions before 12.14.
+		body.put("confirm_logout", opLogout);
+		return Request.Put(config.getEndpoint() + config.getLogout().getResourcePath() + "/" + logoutSessionId).
 				addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + config.getAuthz().getAccessToken()).
 				addHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8").
-				body(new ByteArrayEntity(jsonMapper.writeValueAsBytes(Collections.singletonMap("confirm_logout", true)))).
+				body(new ByteArrayEntity(jsonMapper.writeValueAsBytes(body))).
 				execute().
 				handleResponse((hr) -> handleC2idResponse(hr));
 	}
@@ -278,9 +306,19 @@ public class C2idAuthService {
 	private Map<String, Object> handleC2idResponse(HttpResponse hr) throws IOException {
 		HttpEntity entity = hr.getEntity();
 		if (entity != null) {
-			Map<String, Object> response = jsonMapper.readerFor(Map.class).readValue(entity.getContent());
-			logger.debug("Connect2id response: {}", response);
-			return response;
+			String body = EntityUtils.toString(entity, StandardCharsets.UTF_8);
+			try {
+				Map<String, Object> response = jsonMapper.readerFor(Map.class).readValue(body);
+				logger.debug("Connect2id response: {}", response);
+				return response;
+			} catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+				String contentType = hr.getFirstHeader(HttpHeaders.CONTENT_TYPE) != null
+						? hr.getFirstHeader(HttpHeaders.CONTENT_TYPE).getValue() : "unknown";
+				String preview = body.length() > 240 ? body.substring(0, 240) + "..." : body;
+				throw new IOException("Connect2id returned a non-JSON response (HTTP "
+						+ hr.getStatusLine().getStatusCode() + ", Content-Type " + contentType
+						+ "): " + preview, e);
+			}
 		}
 		logger.debug("Connect2id failed response: {}", hr.getStatusLine().getStatusCode());
 		return Collections.emptyMap();

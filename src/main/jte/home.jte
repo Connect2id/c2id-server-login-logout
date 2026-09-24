@@ -13,7 +13,7 @@
 @param String scriptsPath
 
 @template.layout(title = msg.get("global.title"), msg = msg, authSessionId = authSessionId,
-	authenticatedUser = authenticatedUser, logoutUrl = contextPath + "/logout", contextPath = contextPath, imagesPath = imagesPath,
+	authenticatedUser = authenticatedUser, logoutUrl = contextPath + "/logout/local", contextPath = contextPath, imagesPath = imagesPath,
 	stylesPath = stylesPath, scriptsPath = scriptsPath, content = @`
 	<div class="row mt-5">
 		<div class="col-md-12 text-center">
@@ -25,19 +25,9 @@
 						<p>${msg.get("logout." + logoutError)}</p>
 					</div>
 				@endif
-				@if(!logoutPrompt)
-					<form method="post" action="${contextPath}/logout" class="mt-2">
+				<form method="post" action="${contextPath}/logout/local" class="mt-2">
 						<button type="submit" class="btn btn-info">${msg.get("global.logout")}</button>
 					</form>
-				@else
-					<h4 class="mt-3">${msg.get("logout.prompt")}</h4>
-					<form method="post" action="${contextPath}/logout/confirm" class="d-inline">
-						<button type="submit" class="btn btn-success">${msg.get("global.yes")}</button>
-					</form>
-					<form method="post" action="${contextPath}/logout/cancel" class="d-inline">
-						<button type="submit" class="btn btn-danger">${msg.get("global.no")}</button>
-					</form>
-				@endif
 			@else
 				<h1>${msg.get("global.title")}</h1>
 				@if(logoutEnd)

@@ -149,6 +149,13 @@ a:hover {
     margin: 3rem auto 4rem;
 }
 
+.logout-iframe {
+    border: 0;
+    height: 0;
+    position: absolute;
+    width: 0;
+}
+
 .login-intro {
     margin-bottom: 2rem;
 }

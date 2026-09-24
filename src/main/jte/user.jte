@@ -16,10 +16,14 @@
 		</div>
 		<div class="user-details">
 			<div class="user-name">${String.valueOf(authenticatedUser.get("name"))}</div>
+			@if(authenticatedUser.get("email") != null)
 			<div class="user-email">${String.valueOf(authenticatedUser.get("email"))}</div>
+			@endif
 			<form method="post" action="${logoutUrl}" class="user-logout">
 				<input type="hidden" name="authSessionId" value="${authSessionId}">
+				@if(logoutUrl != null)
 				<button type="submit" class="btn btn-link">${msg.get("global.logout")}</button>
+				@endif
 			</form>
 		</div>
 	</div>
