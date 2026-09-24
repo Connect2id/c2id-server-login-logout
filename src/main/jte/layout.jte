@@ -1,5 +1,6 @@
 @import gg.jte.Content
 @import com.nimbusds.login.web.Messages
+@import java.util.Map
 
 @param String title
 @param Messages msg
@@ -8,6 +9,9 @@
 @param String imagesPath
 @param String stylesPath
 @param String scriptsPath
+
+@param String authSessionId = null
+@param Map<String, Object> authenticatedUser = null
 
 <!DOCTYPE html>
 <html lang="en">
@@ -26,7 +30,11 @@
 		<a class="auth-brand" href="${contextPath}/" aria-label="Connect2id home">
 			<img src="${imagesPath}/connect2id-logo.svg" width="158" height="19" alt="Connect2id">
 		</a>
-		<span class="auth-header-label">Sample Login Page</span>
+		@if(authenticatedUser != null)
+			@template.user(msg = msg, authSessionId = authSessionId, authenticatedUser = authenticatedUser, contextPath = contextPath)
+		@else
+			<span class="auth-header-label">Sample Login Page</span>
+		@endif
 	</div>
 </header>
 <main class="auth-main">

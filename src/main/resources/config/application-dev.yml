@@ -6,8 +6,10 @@
 
 gg:
     jte:
-        # Hot-reload the JTE templates on every change (requires a JDK)
+        # Load and compile the source templates on demand in development.
+        templateLocation: src/main/jte
         developmentMode: true
+        usePrecompiledTemplates: false
 
 # ===================================================================
 # To enable SSL, generate a certificate using:
@@ -27,6 +29,16 @@ server:
     port: 8000
     servlet:
       context-path: /c2id-login
+
+spring:
+    web:
+        resources:
+            cache:
+                period: 0s
+                cachecontrol:
+                    no-cache: true
+                    no-store: true
+                    must-revalidate: true
 
 # ===================================================================
 # Application specific properties

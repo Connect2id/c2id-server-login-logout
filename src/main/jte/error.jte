@@ -9,11 +9,11 @@
 
 @template.layout(title = msg.get("error.title"), msg = msg, contextPath = contextPath,
 	imagesPath = imagesPath, stylesPath = stylesPath, scriptsPath = scriptsPath, content = @`
-	<div class="row voffset6">
+	<div class="row mt-5">
 		<div class="col-md-12 text-center">
 			<h1>${msg.get("error.title")}</h1>
 			@if(errorMessage != null)
-				<div class="voffset4">
+				<div class="mt-4">
 					<div class="alert alert-danger"><h4>${errorMessage}</h4></div>
 				</div>
 			@endif
