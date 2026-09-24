@@ -20,6 +20,7 @@
 
 @template.layout(title = msg.get("consent.title"), msg = msg, contextPath = contextPath,
 	authSessionId = authSessionId, authenticatedUser = authenticatedUser,
+	logoutUrl = contextPath + "/consent/logout",
 	imagesPath = imagesPath, stylesPath = stylesPath, scriptsPath = scriptsPath, content = @`
 	<div class="row mt-2">
 		<div class="col-md-12 text-center">

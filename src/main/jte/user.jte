@@ -5,6 +5,7 @@
 @param String authSessionId
 @param Map<String, Object> authenticatedUser = null
 @param String contextPath
+@param String logoutUrl
 
 @if(authenticatedUser != null)
 	<div class="user-card">
@@ -16,7 +17,7 @@
 		<div class="user-details">
 			<div class="user-name">${String.valueOf(authenticatedUser.get("name"))}</div>
 			<div class="user-email">${String.valueOf(authenticatedUser.get("email"))}</div>
-			<form method="post" action="${contextPath}/consent/logout" class="user-logout">
+			<form method="post" action="${logoutUrl}" class="user-logout">
 				<input type="hidden" name="authSessionId" value="${authSessionId}">
 				<button type="submit" class="btn btn-link">${msg.get("global.logout")}</button>
 			</form>

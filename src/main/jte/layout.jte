@@ -12,6 +12,7 @@
 
 @param String authSessionId = null
 @param Map<String, Object> authenticatedUser = null
+@param String logoutUrl = null
 
 <!DOCTYPE html>
 <html lang="en">
@@ -31,7 +32,8 @@
 			<img src="${imagesPath}/connect2id-logo.svg" width="158" height="19" alt="Connect2id">
 		</a>
 		@if(authenticatedUser != null)
-			@template.user(msg = msg, authSessionId = authSessionId, authenticatedUser = authenticatedUser, contextPath = contextPath)
+			@template.user(msg = msg, authSessionId = authSessionId, authenticatedUser = authenticatedUser,
+				contextPath = contextPath, logoutUrl = logoutUrl)
 		@else
 			<span class="auth-header-label">Sample Login Page</span>
 		@endif

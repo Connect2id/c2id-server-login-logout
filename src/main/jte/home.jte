@@ -13,7 +13,7 @@
 @param String scriptsPath
 
 @template.layout(title = msg.get("global.title"), msg = msg, authSessionId = authSessionId,
-	authenticatedUser = authenticatedUser, contextPath = contextPath, imagesPath = imagesPath,
+	authenticatedUser = authenticatedUser, logoutUrl = contextPath + "/logout", contextPath = contextPath, imagesPath = imagesPath,
 	stylesPath = stylesPath, scriptsPath = scriptsPath, content = @`
 	<div class="row mt-5">
 		<div class="col-md-12 text-center">
