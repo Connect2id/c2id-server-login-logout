@@ -41,7 +41,7 @@
 				<div class="row g-4">
 				@if(!newScopes.isEmpty())
 					<div class="col-md-6">
-						<strong>${msg.get("consent.new")}</strong>:
+						<strong>${msg.get("consent.new")}</strong>
 						<div class="mt-1">
 							@for(var scope : newScopes)
 								@if(scope == "openid")
@@ -55,7 +55,7 @@
 				@endif
 				@if(!consentedScopes.isEmpty())
 					<div class="col-md-6">
-						<strong>${msg.get("consent.previous")}</strong>:
+						<strong>${msg.get("consent.previous")}</strong>
 						<div class="mt-1">
 							@for(var scope : consentedScopes)
 								@if(scope == "openid")
@@ -82,7 +82,7 @@
 						<strong>${msg.get("consent.new")}</strong>
 						@if(!newEssentialClaims.isEmpty())
 							<div class="mt-2">
-								<strong>${msg.get("consent.essential")}:</strong>
+								<strong>${msg.get("consent.essential")}</strong>
 								<div class="mt-1">
 									@for(var claim : newEssentialClaims)
 										<label class="form-check-label me-3"><input class="form-check-input me-1" type="checkbox" form="consentForm" name="claim" value="${claim}"> <tt>${claim}</tt></label>
