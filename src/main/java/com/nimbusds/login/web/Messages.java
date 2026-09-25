@@ -1,6 +1,7 @@
 package com.nimbusds.login.web;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.ui.Model;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -44,6 +45,18 @@ public class Messages {
 	@ModelAttribute("scriptsPath")
 	public String scriptsPath(HttpServletRequest request) {
 		return request.getContextPath() + "/js";
+	}
+
+	/**
+	 * Adds the common JTE layout attributes to a model. This is also used by
+	 * error dispatches, where controller-advice model methods may not run.
+	 */
+	public void addTemplateAttributes(Model model, HttpServletRequest request) {
+		model.addAttribute("msg", this);
+		model.addAttribute("contextPath", contextPath(request));
+		model.addAttribute("imagesPath", imagesPath(request));
+		model.addAttribute("stylesPath", stylesPath(request));
+		model.addAttribute("scriptsPath", scriptsPath(request));
 	}
 
 	/**

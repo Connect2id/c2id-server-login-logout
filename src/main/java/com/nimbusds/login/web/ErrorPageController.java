@@ -1,5 +1,6 @@
 package com.nimbusds.login.web;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.boot.webmvc.error.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,15 +24,15 @@ public class ErrorPageController implements ErrorController {
 	}
 
 	@GetMapping("/err/{msg}")
-	public String errorMessage(@PathVariable String msg, Model model) {
-		model.addAttribute("msg", messages);
+	public String errorMessage(@PathVariable String msg, HttpServletRequest request, Model model) {
+		messages.addTemplateAttributes(model, request);
 		model.addAttribute("errorMessage", ErrorMessages.decode(msg));
 		return "error";
 	}
 
 	@GetMapping("/err")
-	public String error(Model model) {
-		model.addAttribute("msg", messages);
+	public String error(HttpServletRequest request, Model model) {
+		messages.addTemplateAttributes(model, request);
 		return "error";
 	}
 
@@ -39,8 +40,8 @@ public class ErrorPageController implements ErrorController {
 	 * Handles the Spring Boot error dispatch path and renders the error page directly.
 	 */
 	@RequestMapping("/error")
-	public String errorPage(Model model) {
-		model.addAttribute("msg", messages);
+	public String errorPage(HttpServletRequest request, Model model) {
+		messages.addTemplateAttributes(model, request);
 		return "error";
 	}
 }

@@ -2,6 +2,7 @@ package com.nimbusds.login.web.errors;
 
 import com.nimbusds.login.auth.InvalidCredentialsException;
 import com.nimbusds.login.web.Messages;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -35,20 +36,20 @@ public class ExceptionTranslator {
 
 	@ExceptionHandler(InvalidCredentialsException.class)
 	@ResponseStatus(HttpStatus.UNAUTHORIZED)
-	public String processInvalidCredentialsException(Model model) {
-		return renderError(model, "error.authentication");
+	public String processInvalidCredentialsException(HttpServletRequest request, Model model) {
+		return renderError(request, model, "error.authentication");
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public String processValidationError(Model model) {
-		return renderError(model, ERR_VALIDATION);
+	public String processValidationError(HttpServletRequest request, Model model) {
+		return renderError(request, model, ERR_VALIDATION);
 	}
 
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
 	@ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-	public String processMethodNotSupportedException(Model model) {
-		return renderError(model, ERR_METHOD_NOT_SUPPORTED);
+	public String processMethodNotSupportedException(HttpServletRequest request, Model model) {
+		return renderError(request, model, ERR_METHOD_NOT_SUPPORTED);
 	}
 
 	/**
@@ -56,21 +57,21 @@ public class ExceptionTranslator {
 	 */
 	@ExceptionHandler(NoResourceFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
-	public String processResourceNotFoundException(Model model) {
-		return renderError(model, ERR_URL_NOT_FOUND);
+	public String processResourceNotFoundException(HttpServletRequest request, Model model) {
+		return renderError(request, model, ERR_URL_NOT_FOUND);
 	}
 
 	@ExceptionHandler(Exception.class)
-	public String processRuntimeException(Exception exception, Model model) {
+	public String processRuntimeException(Exception exception, HttpServletRequest request, Model model) {
 		ResponseStatus responseStatus = AnnotationUtils.findAnnotation(exception.getClass(), ResponseStatus.class);
 		String messageKey = responseStatus != null && !responseStatus.reason().isBlank()
 				? responseStatus.reason() : ERR_INTERNAL_SERVER_ERROR;
 		LOGGER.error(messages.get(messageKey), exception);
-		return renderError(model, messageKey);
+		return renderError(request, model, messageKey);
 	}
 
-	private String renderError(Model model, String messageKey) {
-		model.addAttribute("msg", messages);
+	private String renderError(HttpServletRequest request, Model model, String messageKey) {
+		messages.addTemplateAttributes(model, request);
 		model.addAttribute("errorMessage", messages.get(messageKey));
 		return "error";
 	}
