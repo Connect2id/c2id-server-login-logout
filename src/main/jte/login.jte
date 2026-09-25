@@ -5,6 +5,9 @@
 @param String cancelUrl
 @param boolean authenticationError = false
 @param String username = null
+@param String requiredSubject = null
+@param boolean selectAccount = false
+@param boolean createAccount = false
 @param String contextPath
 @param String imagesPath
 @param String stylesPath
@@ -17,6 +20,12 @@
 			<h1>${msg.get("login.title")}</h1>
 		</div>
 		<div class="login-panel">
+			@if(selectAccount)
+				<div class="alert alert-info login-alert" role="status">${msg.get("login.selectAccount")}</div>
+			@endif
+			@if(createAccount)
+				<div class="alert alert-warning login-alert" role="status">${msg.get("login.createAccount")}</div>
+			@endif
 			@if(authenticationError)
 				<div class="alert alert-danger login-alert" role="alert">
 					<p><strong>${msg.get("error.authentication")}</strong></p>
@@ -26,6 +35,7 @@
 				<div class="form-field">
 					<label for="username">${msg.get("login.form.username")}</label>
 					<input type="text" class="form-control" id="username" name="username" value="${username}"
+						readonly="${requiredSubject != null}"
 						placeholder="${msg.get("login.form.username.placeholder")}" required autofocus>
 				</div>
 				<div class="form-field">

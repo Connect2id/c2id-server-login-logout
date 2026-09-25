@@ -47,6 +47,7 @@ public class AuthzResponseDispatcher {
 
 		if ("auth".equals(type)) {
 			updateSessionIdCookie(authzResponse, request, response);
+			request.getSession().setAttribute("c2idAuthPrompt", authzResponse);
 			// The authorisation session was created, show the login form
 			return "redirect:/login?authSessionId=" + urlEncode((String) authzResponse.get("sid"))
 					+ originalQuerySuffix(request);
