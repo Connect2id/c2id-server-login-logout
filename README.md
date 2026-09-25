@@ -90,6 +90,50 @@ c2id:
 
 Do not commit production tokens or API keys. Prefer environment variables or an external configuration source.
 
+### Application properties
+
+These properties are bound by `ApplicationProperties` with the `c2id` prefix.
+
+| Property | Description | Default |
+| --- | --- | --- |
+| `c2id.endpoint` | Base URL of the Connect2id server. | `http://127.0.0.1:8080/c2id` |
+| `c2id.cookieName` | Name of the Connect2id subject-session cookie. | `sid` |
+| `c2id.authenticatorClass` | Simple class name of a `UserAuthenticator` loaded through `ServiceLoader`. | Empty; uses `LdapUserAuthenticator` |
+| `c2id.authz.resourcePath` | Authorisation-session API path. | `/authz-sessions/rest/v3` |
+| `c2id.authz.accessToken` | Long-lived bearer token for the authorisation-session API. | Required secret |
+| `c2id.authz.longLived` | Requests long-lived tokens during authentication. | `false` (`true` in DEV) |
+| `c2id.session.resourcePath` | Subject-session store API path. | `/session-store/rest/v2` |
+| `c2id.session.accessToken` | Bearer token for the subject-session store API. | Required secret |
+| `c2id.ldapAuth.endpoint` | LdapAuth JSON-RPC endpoint. | `http://localhost:8080/ldapauth/` |
+| `c2id.ldapAuth.apiKey` | LdapAuth API key. | Required secret |
+| `c2id.logout.resourcePath` | Logout-session API path. | `/logout-sessions/rest/v1` |
+| `c2id.logout.accessToken` | Long-lived bearer token for the logout-session API. | Required secret |
+| `c2id.logout.defaultPostLogoutRedirectUri` | Fallback redirect when the RP does not provide `post_logout_redirect_uri`. | Empty; no redirect |
+
+### Spring Boot, JTE, and Actuator properties
+
+| Property | Description | Default / profile value |
+| --- | --- | --- |
+| `spring.application.name` | Spring application name. | `c2idlogin` |
+| `spring.profiles.active` | Active Spring profile. | Maven DEV profile: `dev`; Maven PROD profile: `prod` |
+| `server.port` | HTTP port for the embedded server. | Spring Boot: `8080`; DEV: `8000`; PROD: `8080` |
+| `server.servlet.context-path` | Servlet context path used for all application URLs. | Empty; DEV example: `/c2id-login` |
+| `server.servlet.application-display-name` | Display name shown by the servlet container. | `Connect2id Login ${project.version}` |
+| `server.compression.enabled` | Enables HTTP response compression. | `false`; PROD: `true` |
+| `server.compression.mime-types` | MIME types compressed when compression is enabled. | Spring Boot default; PROD config lists HTML, XML, text, CSS, JavaScript, and JSON |
+| `server.compression.min-response-size` | Minimum response size for compression. | Spring Boot default; PROD config: `1024` bytes |
+| `server.error.path` | Error dispatch path. | `/error` |
+| `server.servlet.session.cookie.http-only` | Prevents client-side scripts from reading the session cookie. | `true` |
+| `gg.jte.templateLocation` | JTE template source or compiled-template location. | `src/main/jte` |
+| `gg.jte.developmentMode` | Compiles source templates on demand. | `false`; DEV: `true`; PROD: `false` |
+| `gg.jte.usePrecompiledTemplates` | Uses templates generated during the Maven build. | `false`; DEV: `false`; PROD: `true` |
+| `spring.web.resources.cache.period` | Static-resource cache period. | Spring Boot default; DEV: `0s` |
+| `spring.web.resources.cache.cachecontrol.no-cache` | Adds `no-cache` to static-resource responses. | `false`; DEV: `true` |
+| `spring.web.resources.cache.cachecontrol.no-store` | Prevents browser storage of static resources. | `false`; DEV: `true` |
+| `spring.web.resources.cache.cachecontrol.must-revalidate` | Requires cache validation before reuse. | `false`; DEV: `true` |
+| `management.endpoints.web.exposure.include` | Actuator endpoints exposed over HTTP. | `health` |
+| `management.endpoint.health.show-details` | Health detail visibility. | `never` |
+
 ### Servlet context path
 
 The application supports deployment below a servlet context path:
