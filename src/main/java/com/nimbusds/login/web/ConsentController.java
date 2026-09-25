@@ -103,7 +103,7 @@ public class ConsentController {
 	 */
 	private void addConsentModel(Model model, Map<String, Object> authzResponse) {
 		Map<String, Object> subSession = nestedMap(authzResponse, "sub_session");
-		model.addAttribute("authenticatedUser", subSession != null ? subSession.get("data") : null);
+		model.addAttribute("authenticatedUser", mergeSessionAttributes(subSession));
 		Map<String, Object> client = nestedMap(authzResponse, "client");
 		if (client != null) {
 			model.addAttribute("clientName", client.get("name"));
@@ -117,6 +117,21 @@ public class ConsentController {
 				nestedList(authzResponse, "claims", "consented", "essential"));
 		model.addAttribute("consentedVoluntaryClaims",
 				nestedList(authzResponse, "claims", "consented", "voluntary"));
+	}
+
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> mergeSessionAttributes(Map<String, Object> subSession) {
+		if (subSession == null) {
+			return null;
+		}
+		Map<String, Object> user = new HashMap<>();
+		if (subSession.get("data") instanceof Map) {
+			user.putAll((Map<String, Object>) subSession.get("data"));
+		}
+		if (subSession.get("claims") instanceof Map) {
+			user.putAll((Map<String, Object>) subSession.get("claims"));
+		}
+		return user.isEmpty() ? null : user;
 	}
 
 	@SuppressWarnings("unchecked")

@@ -9,6 +9,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -123,7 +124,7 @@ public class LogoutController {
 			if (StringUtils.isBlank(redirectUrl)) {
 				redirectUrl = authService.getConfig().getLogout().getDefaultPostLogoutRedirectUri();
 			}
-			model.addAttribute("redirectUrl", redirectUrl);
+			model.addAttribute("redirectUrl", StringUtils.trimToNull(redirectUrl));
 			model.addAttribute("frontChannelLogoutUrls", frontChannelLogoutUrls(logoutResponse));
 			return "logoutEnd";
 		}
@@ -169,10 +170,17 @@ public class LogoutController {
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> sessionData(Map<String, Object> logoutResponse) {
 		Map<String, Object> session = nestedMap(logoutResponse, "sub_session");
-		if (session == null || !(session.get("data") instanceof Map)) {
+		if (session == null) {
 			return null;
 		}
-		return (Map<String, Object>) session.get("data");
+		Map<String, Object> user = new HashMap<>();
+		if (session.get("data") instanceof Map) {
+			user.putAll((Map<String, Object>) session.get("data"));
+		}
+		if (session.get("claims") instanceof Map) {
+			user.putAll((Map<String, Object>) session.get("claims"));
+		}
+		return user.isEmpty() ? null : user;
 	}
 
 	private List<String> frontChannelLogoutUrls(Map<String, Object> logoutResponse) {

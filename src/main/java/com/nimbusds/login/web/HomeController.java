@@ -5,6 +5,7 @@ import com.nimbusds.login.service.C2idAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -12,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 
 /**
  * Home page controller. Entry point of every OpenID Connect authentication request. If the request
@@ -60,8 +60,15 @@ public class HomeController {
 			String sessionId = CookieManager.getCookie(request, authService.getConfig().getCookieName());
 			logger.debug("Submitting SID for verification (sid={}) to Connect2id server: {}", sessionId);
 			Map<String, Object> session = authService.verifySubject(sessionId);
-			if (session != null && session.containsKey("data")) {
-				return (Map<String, Object>) session.get("data");
+			if (session != null) {
+				Map<String, Object> user = new HashMap<>();
+				if (session.get("data") instanceof Map) {
+					user.putAll((Map<String, Object>) session.get("data"));
+				}
+				if (session.get("claims") instanceof Map) {
+					user.putAll((Map<String, Object>) session.get("claims"));
+				}
+				return user.isEmpty() ? null : user;
 			}
 		} catch (IOException e) {
 			logger.error("Failed to verify subject session: {}", e.getMessage());

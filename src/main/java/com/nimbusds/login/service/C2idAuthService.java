@@ -1,11 +1,12 @@
 package com.nimbusds.login.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.login.auth.AuthenticationException;
 import com.nimbusds.login.config.ApplicationProperties;
 import com.nimbusds.login.domain.AuthenticationResult;
 import com.nimbusds.login.domain.User;
-import com.nimbusds.login.auth.AuthenticationException;
 import com.nimbusds.login.spi.UserAuthenticator;
+import com.nimbusds.login.web.Utils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -17,11 +18,10 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
-import org.apache.http.util.EntityUtils;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 /**
@@ -105,6 +105,8 @@ public class C2idAuthService {
 		}
 		AuthenticationResult result = authenticator.authenticate(user);
 		Map<String, String> userDetails = new HashMap<>();
+		Map<String, Object> subjectSessionClaims = Utils.extractSubjectSessionClaims(result);
+		logger.debug("Authentication returned subject session claim names: {}", subjectSessionClaims.keySet());
 		Map<String, Object> body = new HashMap<>();
 		if (result != null && result.getSubject() != null) {
 			userDetails.put("name", result.getSubject().getName());
@@ -124,6 +126,18 @@ public class C2idAuthService {
 				execute().
 				handleResponse((hr) -> {
 					Map<String, Object> response = handleC2idResponse(hr);
+					String subjectSessionId = Utils.subjectSessionId(response);
+					if (!subjectSessionClaims.isEmpty() && !StringUtils.isBlank(subjectSessionId)) {
+						logger.debug("Updating subject session claims for session {}", subjectSessionId);
+						try {
+							Utils.updateSubjectSessionClaims(subjectSessionId, subjectSessionClaims, config, jsonMapper);
+						} catch (IOException e) {
+							logger.warn("Unable to update subject session claims: {}", e.getMessage());
+						}
+					} else if (!subjectSessionClaims.isEmpty()) {
+						logger.warn("Authentication returned claims but no subject session SID was returned");
+					}
+					Utils.addClaimsToResponseSession(response, subjectSessionClaims);
 					if (!response.isEmpty()) {
 						response.put("data", userDetails);
 					}

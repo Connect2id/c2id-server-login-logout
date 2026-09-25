@@ -1,5 +1,6 @@
 @import gg.jte.Content
 @import com.nimbusds.login.web.Messages
+@import com.nimbusds.login.web.Utils
 @import java.util.Map
 
 @param String title
@@ -35,7 +36,7 @@
 			@template.user(msg = msg, authSessionId = authSessionId, authenticatedUser = authenticatedUser,
 				contextPath = contextPath, logoutUrl = logoutUrl)
 		@else
-			<span class="auth-header-label">${msg.get("global.sampleLoginPage")}</span>
+			<span class="auth-header-label">${Utils.getAppName()}</span>
 		@endif
 	</div>
 </header>

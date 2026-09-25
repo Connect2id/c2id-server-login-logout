@@ -35,7 +35,7 @@ server:
     error:
         path: /error
     servlet:
-        application-display-name: Connect2id Login #project.version#
+        application-display-name: Connect2id Login & Logout Page #project.version#
         session:
             cookie:
                 http-only: true

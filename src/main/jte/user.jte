@@ -12,7 +12,8 @@
 		<div class="user-avatar" aria-hidden="true">
 			@if(authenticatedUser.get("picture") != null
 				&& (String.valueOf(authenticatedUser.get("picture")).startsWith("https://")
-						|| String.valueOf(authenticatedUser.get("picture")).startsWith("http://")))
+					|| String.valueOf(authenticatedUser.get("picture")).startsWith("http://")
+					|| String.valueOf(authenticatedUser.get("picture")).startsWith("data:image/")))
 				<img src="${String.valueOf(authenticatedUser.get("picture"))}"
 					alt="">
 			@else

@@ -22,11 +22,11 @@
 			<h1 class="h3">${msg.get("logout.success")}</h1>
 			@if(redirectUrl != null)
 				<meta http-equiv="refresh" content="3;url=${redirectUrl}">
-				<p class="form-text login-hint">
+				<span class="form-text login-hint">
 					<a href="${redirectUrl}">${redirectUrl}</a>
-				</p>
+				</span>
 			@else
-				<p class="form-text login-hint">${msg.get("logout.closeWindow")}</p>
+				<span class="form-text login-hint">${msg.get("logout.closeWindow")}</span>
 			@endif
 		</div>
 	</div>
