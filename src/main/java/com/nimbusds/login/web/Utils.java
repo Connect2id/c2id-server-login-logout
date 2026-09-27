@@ -3,10 +3,16 @@ package com.nimbusds.login.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.login.config.ApplicationProperties;
 import com.nimbusds.login.domain.AuthenticationResult;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
@@ -16,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.ui.Model;
 
 /**
  * Utility and helper methods.
@@ -168,5 +175,101 @@ public class Utils {
 		if (subSession instanceof Map) {
 			((Map<String, Object>) subSession).put("claims", claims);
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Map<String, Object> authPrompt(HttpServletRequest request) {
+		Object value = request.getSession().getAttribute("c2idAuthPrompt");
+		if (!(value instanceof Map)) {
+			return null;
+		}
+		Map<String, Object> prompt = (Map<String, Object>) value;
+		String authSessionId = request.getParameter("authSessionId");
+		return authSessionId != null && authSessionId.equals(String.valueOf(prompt.get("sid"))) ? prompt : null;
+	}
+
+	public static String requiredSubject(HttpServletRequest request) {
+		Map<String, Object> prompt = authPrompt(request);
+		return prompt == null ? null : value(prompt.get("required_sub"));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static void populatePrompt(Model model, Map<String, Object> prompt, boolean newAccountMode) {
+		if (prompt == null) {
+			model.addAttribute("selectAccount", false);
+			model.addAttribute("createAccount", false);
+			return;
+		}
+		String requiredSubject = value(prompt.get("required_sub"));
+		String loginHint = value(prompt.get("login_hint"));
+		model.addAttribute("requiredSubject", requiredSubject);
+		model.addAttribute("username", StringUtils.isNotBlank(requiredSubject) ? requiredSubject : loginHint);
+		model.addAttribute("selectAccount", !newAccountMode && booleanValue(prompt.get("select_account")));
+		model.addAttribute("createAccount", booleanValue(prompt.get("create_account")));
+	}
+
+	public static String removeSelectAccountPrompt(String query) {
+		if (StringUtils.isBlank(query)) {
+			return query;
+		}
+		List<String> retained = new ArrayList<>();
+		for (String part : query.split("&")) {
+			int separator = part.indexOf('=');
+			String encodedName = separator >= 0 ? part.substring(0, separator) : part;
+			String encodedValue = separator >= 0 ? part.substring(separator + 1) : "";
+			String name = URLDecoder.decode(encodedName, StandardCharsets.UTF_8);
+			String value = URLDecoder.decode(encodedValue, StandardCharsets.UTF_8);
+			if (!"prompt".equals(name)) {
+				retained.add(part);
+				continue;
+			}
+			List<String> promptValues = new ArrayList<>();
+			for (String promptValue : value.split("\\s+")) {
+				if (!"select_account".equals(promptValue)) {
+					promptValues.add(promptValue);
+				}
+			}
+			if (!promptValues.isEmpty()) {
+				retained.add(URLEncoder.encode(name, StandardCharsets.UTF_8) + "="
+						+ URLEncoder.encode(String.join(" ", promptValues), StandardCharsets.UTF_8));
+			}
+		}
+		return String.join("&", retained);
+	}
+
+	public static boolean booleanValue(Object value) {
+		return value instanceof Boolean ? (Boolean) value : "true".equalsIgnoreCase(String.valueOf(value));
+	}
+
+	public static String selectionError(HttpServletRequest request, Model model, String authSessionId) {
+		model.addAttribute("accountSelectionError", true);
+		model.addAttribute("authenticationError", false);
+		model.addAttribute("actionUrl", currentUrl(request));
+		model.addAttribute("cancelUrl", request.getContextPath() + "/login/cancel" + querySuffix(request));
+		model.addAttribute("authSessionId", authSessionId);
+		populatePrompt(model, authPrompt(request),
+				Boolean.TRUE.equals(request.getSession().getAttribute("newAccountLogin")));
+		return "login";
+	}
+
+	public static String currentUrl(HttpServletRequest request) {
+		return request.getContextPath() + "/login" + querySuffix(request);
+	}
+
+	public static String querySuffix(HttpServletRequest request) {
+		String queryString = request.getQueryString();
+		return StringUtils.isBlank(queryString) ? "" : "?" + queryString;
+	}
+
+	public static String renderString(Object val) {
+		if (val == null) {
+			return "";
+		}
+		String s = String.valueOf(val).replaceAll("[\\[\\]]", "");
+		return s;
+	}
+
+	private static String value(Object value) {
+		return value == null ? null : String.valueOf(value);
 	}
 }

@@ -210,11 +210,20 @@ public class C2idAuthService {
 	 */
 	public Map<String, Object> verifySubject(String sessionId) throws IOException {
 		return Request.Get(config.getEndpoint() + config.getSession().getResourcePath() + "/sessions").
-				addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + config.getAuthz().getAccessToken()).
+				addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + config.getSession().getAccessToken()).
 				addHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8").
 				addHeader("SID", sessionId).
 				execute().
-				handleResponse((hr) -> handleC2idResponse(hr));
+				handleResponse((hr) -> {
+					int status = hr.getStatusLine().getStatusCode();
+					if (status == 404) {
+						throw new IOException("Subject session not found (HTTP 404)");
+					}
+					if (status < 200 || status >= 300) {
+						throw new IOException("Subject session lookup failed: " + hr.getStatusLine());
+					}
+					return handleC2idResponse(hr);
+				});
 	}
 
 	/**

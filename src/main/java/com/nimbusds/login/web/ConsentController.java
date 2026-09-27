@@ -1,6 +1,6 @@
 package com.nimbusds.login.web;
 
-import com.nimbusds.login.rest.utils.CookieManager;
+import com.nimbusds.login.rest.utils.SessionCookieManager;
 import com.nimbusds.login.service.C2idAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,10 +30,13 @@ public class ConsentController {
 	private final Logger logger = LoggerFactory.getLogger(ConsentController.class);
 	private final C2idAuthService authService;
 	private final AuthzResponseDispatcher dispatcher;
+	private final SessionCookieManager sessionCookieManager;
 
-	public ConsentController(C2idAuthService authService, AuthzResponseDispatcher dispatcher) {
+	public ConsentController(C2idAuthService authService, AuthzResponseDispatcher dispatcher,
+			SessionCookieManager sessionCookieManager) {
 		this.authService = authService;
 		this.dispatcher = dispatcher;
+		this.sessionCookieManager = sessionCookieManager;
 	}
 
 	@GetMapping("/consent")
@@ -84,9 +87,9 @@ public class ConsentController {
 	public String logoutSubject(HttpServletRequest request, HttpServletResponse response, Model model)
 			throws IOException {
 		logger.debug("Submitting subject logout request to Connect2id server.");
-		String sessionId = CookieManager.getCookie(request, authService.getConfig().getCookieName());
+		String sessionId = sessionCookieManager.getCurrentSessionId(request, authService.getConfig().getCookieName());
 		authService.logoutSubject(sessionId);
-		CookieManager.removeCookie(authService.getConfig().getCookieName(), response);
+		sessionCookieManager.removeSession(request, response, authService.getConfig().getCookieName(), sessionId);
 		// The session id cookie was removed, so the flow starts with a blank session
 		String queryString = (String) request.getSession().getAttribute("c2idQueryString");
 		Map<String, Object> authzResponse = authService.initAuthRequest(queryString, null);

@@ -1,6 +1,6 @@
 package com.nimbusds.login.web;
 
-import com.nimbusds.login.rest.utils.CookieManager;
+import com.nimbusds.login.rest.utils.SessionCookieManager;
 import com.nimbusds.login.service.C2idAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,10 +15,9 @@ import org.springframework.ui.Model;
 
 /**
  * Handles the response of the Connect2id server after every authorisation session interaction.
- * It ports the state machine of the previous AngularJS front-end run block: depending on the
- * response type it either shows the login form, shows the consent form, relays the final OpenID
- * authentication response back to the client, or shows an error page. It also updates the
- * subject session id cookie in the same way the old REST layer did.
+ * Depending on the response type it either shows the login form, shows the consent form, relays
+ * the final OpenID authentication response back to the client, or shows an error page.
+ * It also updates the subject session id cookie in the same way the old REST layer did.
  *
  * @author Alex Bogdanovski [alex@erudika.com]
  */
@@ -27,9 +26,11 @@ public class AuthzResponseDispatcher {
 
 	private final Logger logger = LoggerFactory.getLogger(AuthzResponseDispatcher.class);
 	private final C2idAuthService authService;
+	private final SessionCookieManager sessionCookieManager;
 
-	public AuthzResponseDispatcher(C2idAuthService authService) {
+	public AuthzResponseDispatcher(C2idAuthService authService, SessionCookieManager sessionCookieManager) {
 		this.authService = authService;
+		this.sessionCookieManager = sessionCookieManager;
 	}
 
 	/**
@@ -100,20 +101,19 @@ public class AuthzResponseDispatcher {
 			HttpServletRequest request, HttpServletResponse response) {
 		if (authzResponse != null && authzResponse.containsKey("type")) {
 			if ("auth".equals(authzResponse.get("type"))) {
-				CookieManager.removeCookie(authService.getConfig().getCookieName(), response);
+				// Keep existing account sessions available for account switching.
 			} else if ("consent".equals(authzResponse.get("type")) && authzResponse.containsKey("sub_session")) {
 				Map<String, Object> sub = (Map<String, Object>) authzResponse.get("sub_session");
-				String cookieName = authService.getConfig().getCookieName();
 				String cookieValue = (String) sub.get("sid");
-				int maxLife = (sub.containsKey("max_life") ? (int) sub.get("max_life") : 20160) * 60;
 				if (!StringUtils.isBlank(cookieValue)) {
-					CookieManager.addCookie(cookieName, cookieValue, request, response, true, maxLife);
+					sessionCookieManager.activateSession(request, response,
+							authService.getConfig().getCookieName(), cookieValue);
 				}
 			} else if ("response".equals(authzResponse.get("type"))) {
-				String cookieName = authService.getConfig().getCookieName();
 				String cookieValue = (String) authzResponse.get("sub_sid");
 				if (!StringUtils.isBlank(cookieValue)) {
-					CookieManager.addCookie(cookieName, cookieValue, request, response, true, 20160 * 60);
+					sessionCookieManager.activateSession(request, response,
+						authService.getConfig().getCookieName(), cookieValue);
 				}
 			}
 		}

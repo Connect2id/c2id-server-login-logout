@@ -216,6 +216,50 @@ a:hover {
     margin: 0;
 }
 
+.account-list {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.account-option-form {
+    margin: 0;
+}
+
+.account-select {
+    background-color: #20383d;
+    border-color: #416066;
+    color: var(--c2id-text);
+		appearance: auto;
+		padding: 0.9rem 0.6rem;
+}
+
+.account-select:focus {
+    background-color: #20383d;
+    border-color: var(--c2id-link);
+    color: var(--c2id-text);
+}
+
+.account-option {
+    background: #20383d;
+    border: 1px solid #416066;
+    border-radius: 0.35rem;
+    color: var(--c2id-text);
+    display: grid;
+    gap: 0.15rem;
+    padding: 0.65rem 0.75rem;
+    text-align: left;
+    width: 100%;
+}
+
+.account-option:hover {
+    border-color: var(--c2id-link);
+}
+
+.account-option span {
+    color: var(--c2id-muted);
+    font-size: 0.78rem;
+}
+
 .login-form {
     margin: 0;
 }
@@ -274,6 +318,10 @@ a:hover {
     transform: translateY(1px);
 }
 
+.btn-primary, .btn-outline-primary {
+		--bs-btn-padding-y: 0.65rem;
+}
+
 .login-submit {
     --bs-btn-bg: var(--c2id-link);
     --bs-btn-border-color: var(--c2id-link);
@@ -284,7 +332,6 @@ a:hover {
 }
 
 .login-cancel {
-		--bs-btn-padding-y: 0.65rem;
     --bs-btn-border-color: #668187;
     --bs-btn-color: var(--c2id-text);
     --bs-btn-hover-bg: #20383d;

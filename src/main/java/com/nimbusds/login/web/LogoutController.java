@@ -1,6 +1,6 @@
 package com.nimbusds.login.web;
 
-import com.nimbusds.login.rest.utils.CookieManager;
+import com.nimbusds.login.rest.utils.SessionCookieManager;
 import com.nimbusds.login.service.C2idAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,9 +29,11 @@ public class LogoutController {
 
 	private final Logger logger = LoggerFactory.getLogger(LogoutController.class);
 	private final C2idAuthService authService;
+	private final SessionCookieManager sessionCookieManager;
 
-	public LogoutController(C2idAuthService authService) {
+	public LogoutController(C2idAuthService authService, SessionCookieManager sessionCookieManager) {
 		this.authService = authService;
+		this.sessionCookieManager = sessionCookieManager;
 	}
 
 	/**
@@ -66,7 +68,7 @@ public class LogoutController {
 			@RequestParam String logoutSid, @RequestParam boolean opLogout) {
 		try {
 			Map<String, Object> logoutResponse = authService.logoutSessionConfirm(logoutSid, opLogout);
-			return renderResponse(logoutResponse, response, model);
+			return renderResponse(request, logoutResponse, response, model);
 		} catch (IOException e) {
 			logger.error("Logout confirmation failed: {}", e.getMessage());
 			model.addAttribute("errorMessage", e.getMessage());
@@ -84,12 +86,12 @@ public class LogoutController {
 
 	private String startLogout(HttpServletRequest request, HttpServletResponse response,
 			Model model, boolean providerInitiated) {
-		String sessionId = CookieManager.getCookie(request, authService.getConfig().getCookieName());
+		String sessionId = sessionCookieManager.getCurrentSessionId(request, authService.getConfig().getCookieName());
 		String query = providerInitiated ? null : requestParameters(request);
 		try {
 			Map<String, Object> logoutResponse = authService.logoutSession(query, sessionId,
 					providerInitiated ? "OP" : null);
-			return renderResponse(logoutResponse, response, model);
+			return renderResponse(request, logoutResponse, response, model);
 		} catch (IOException e) {
 			logger.error("Logout request failed: {}", e.getMessage());
 			model.addAttribute("errorMessage", e.getMessage());
@@ -97,7 +99,8 @@ public class LogoutController {
 		}
 	}
 
-	private String renderResponse(Map<String, Object> logoutResponse, HttpServletResponse response, Model model) {
+	private String renderResponse(HttpServletRequest request, Map<String, Object> logoutResponse,
+			HttpServletResponse response, Model model) {
 		if (logoutResponse == null) {
 			model.addAttribute("errorMessage", "The logout server returned no response.");
 			return "logoutError";
@@ -117,7 +120,8 @@ public class LogoutController {
 		if ("end".equals(type)) {
 			boolean sessionClosed = Boolean.TRUE.equals(logoutResponse.get("sub_session_closed"));
 			if (sessionClosed && response != null) {
-				CookieManager.removeCookie(authService.getConfig().getCookieName(), response);
+				String sessionId = sessionCookieManager.getCurrentSessionId(request, authService.getConfig().getCookieName());
+				sessionCookieManager.removeSession(request, response, authService.getConfig().getCookieName(), sessionId);
 			}
 			model.addAttribute("sessionClosed", sessionClosed);
 			String redirectUrl = (String) logoutResponse.get("post_logout_redirect_uri");

@@ -4,8 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 /**
- * Encodes and decodes the error message that is shown on the error page, replacing the client-side
- * Base64 utility of the previous AngularJS front-end.
+ * Encodes and decodes the error message that is shown on the error page.
  *
  * @author Alex Bogdanovski [alex@erudika.com]
  */

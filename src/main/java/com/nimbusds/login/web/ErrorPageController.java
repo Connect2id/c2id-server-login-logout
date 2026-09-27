@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
- * Error page controller, replacing the redirect to the error view of the previous AngularJS
- * front-end. The error message travels in the URL path, Base64 encoded.
+ * Error page controller, replacing the redirect to the error view.
+ * The error message travels in the URL path, Base64 encoded.
  *
  * @author Alex Bogdanovski [alex@erudika.com]
  */

@@ -1,6 +1,6 @@
 package com.nimbusds.login.web;
 
-import com.nimbusds.login.rest.utils.CookieManager;
+import com.nimbusds.login.rest.utils.SessionCookieManager;
 import com.nimbusds.login.service.C2idAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,10 +28,13 @@ public class HomeController {
 	private final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	private final C2idAuthService authService;
 	private final AuthzResponseDispatcher dispatcher;
+	private final SessionCookieManager sessionCookieManager;
 
-	public HomeController(C2idAuthService authService, AuthzResponseDispatcher dispatcher) {
+	public HomeController(C2idAuthService authService, AuthzResponseDispatcher dispatcher,
+			SessionCookieManager sessionCookieManager) {
 		this.authService = authService;
 		this.dispatcher = dispatcher;
+		this.sessionCookieManager = sessionCookieManager;
 	}
 
 	@GetMapping("/")
@@ -41,7 +44,7 @@ public class HomeController {
 		if (StringUtils.isNotBlank(request.getParameter("client_id"))) {
 			// Remember the original query string for the login, consent and logout flows
 			request.getSession().setAttribute("c2idQueryString", queryString);
-			String sessionId = CookieManager.getCookie(request, authService.getConfig().getCookieName());
+			String sessionId = sessionCookieManager.getCurrentSessionId(request, authService.getConfig().getCookieName());
 			logger.debug("Initial authorization request to Connect2id server: sid={}, qs={}", sessionId, queryString);
 			Map<String, Object> authzResponse = authService.initAuthRequest(queryString, sessionId);
 			return dispatcher.dispatch(authzResponse, request, response, model);
@@ -57,7 +60,7 @@ public class HomeController {
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> getAuthenticatedUser(HttpServletRequest request) {
 		try {
-			String sessionId = CookieManager.getCookie(request, authService.getConfig().getCookieName());
+			String sessionId = sessionCookieManager.getCurrentSessionId(request, authService.getConfig().getCookieName());
 			logger.debug("Submitting SID for verification (sid={}) to Connect2id server: {}", sessionId);
 			Map<String, Object> session = authService.verifySubject(sessionId);
 			if (session != null) {
