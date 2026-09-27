@@ -1,7 +1,6 @@
 @import com.nimbusds.login.web.Messages
 @import java.util.List
 @import java.util.Map
-@import com.nimbusds.login.web.Utils
 
 @param Messages msg
 @param String actionUrl
@@ -38,31 +37,15 @@
 			@if(selectAccount)
 				@if(availableAccounts != null && ((selectAccount && !availableAccounts.isEmpty()) || availableAccounts.size() > 1))
 					<div class="account-list mb-4">
-						@if(availableAccounts.size() > 1)
+						@for(var account : availableAccounts)
 							<form method="post" action="${contextPath}/login/select" class="account-option-form">
 								<input type="hidden" name="authSessionId" value="${authSessionId}">
-								<select name="slot" class="form-select account-select">
-									@for(var account : availableAccounts)
-										<option value="${String.valueOf(account.get("slot"))}" selected="${Boolean.TRUE.equals(account.get("current"))}">
-											${String.valueOf(account.get("name"))}
-											@if(account.get("email") != null) - ${Utils.renderString(account.get("email"))}@endif
-										</option>
-									@endfor
-								</select>
-								<button type="submit" class="btn btn-primary login-submit w-100 mt-2">${msg.get("login.selectAccount")}</button>
+								<input type="hidden" name="slot" value="${String.valueOf(account.get("slot"))}">
+								<button type="submit" class="account-option">
+									@template.user(msg = msg, authSessionId = authSessionId, authenticatedUser = account, contextPath = contextPath, logoutUrl = null)
+								</button>
 							</form>
-						@else
-							@for(var account : availableAccounts)
-								<form method="post" action="${contextPath}/login/select" class="account-option-form">
-									<input type="hidden" name="authSessionId" value="${authSessionId}">
-									<input type="hidden" name="slot" value="${String.valueOf(account.get("slot"))}">
-									<button type="submit" class="account-option">
-										<strong>${String.valueOf(account.get("name"))}</strong>
-										@if(account.get("email") != null)<span>${Utils.renderString(account.get("email"))}</span>@endif
-									</button>
-								</form>
-							@endfor
-						@endif
+						@endfor
 					</div>
 				@endif
 				<form method="post" action="${contextPath}/login/new-account" class="account-option-form">

@@ -226,6 +226,21 @@ a:hover {
     gap: 0.5rem;
 }
 
+.account-session-option {
+    background: var(--c2id-input);
+    border: 1px solid var(--c2id-input-border);
+    border-radius: 0.5rem;
+    display: grid;
+    gap: 0.75rem;
+    padding: 0.75rem;
+}
+
+.account-session-option .user-card {
+    display: grid;
+    max-width: none;
+    width: 100%;
+}
+
 .account-option-form {
     margin: 0;
 }
