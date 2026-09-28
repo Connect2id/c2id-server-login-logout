@@ -67,6 +67,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
+		<!-- Required by WebConfigurator when the WAR runs in external Tomcat. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-web-server</artifactId>
+		</dependency>
 		<!-- Marked provided so the WAR can also be deployed to an external
 			Tomcat; the Spring Boot plugin puts it in lib-provided so
 			"java -jar" still works for the executable WAR. -->
@@ -321,6 +326,9 @@
 				<!-- default Spring profiles -->
 				<spring.profiles.active>prod</spring.profiles.active>
 			</properties>
+			<build>
+				<finalName>c2id-login-logout</finalName>
+			</build>
 		</profile>
 
 		<profile>

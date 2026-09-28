@@ -22,6 +22,9 @@ spring:
     messages:
         basename: i18n/messages
 
+logging:
+    config: classpath:logback-spring.xml
+
 management:
     endpoints:
         web:

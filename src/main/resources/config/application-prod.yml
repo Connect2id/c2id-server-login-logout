@@ -14,7 +14,7 @@ gg:
 # ===================================================================
 # To enable SSL, generate a certificate using:
 # keytool -genkey -alias c2idlogin -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650
-##
+#
 # Then, modify the server.ssl properties so that your "server" configuration looks like:
 #
 # server:
@@ -26,13 +26,18 @@ gg:
 #        keyAlias: c2idlogin
 # ===================================================================
 server:
-    port: 8080
-#    servlet:
-#      context-path: /c2id-login
+    port: 8000
+    servlet:
+      context-path: /c2id-login-logout
     compression:
         enabled: true
         mime-types: text/html,text/xml,text/plain,text/css, application/javascript, application/json
         min-response-size: 1024
+
+
+
+
+
 
 
 # ===================================================================
