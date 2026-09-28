@@ -280,6 +280,36 @@ a:hover {
     font-size: 0.78rem;
 }
 
+.consent-items {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.consent-item {
+    align-items: flex-start;
+    background: var(--c2id-input);
+    border: 1px solid var(--c2id-input-border);
+    border-radius: 0.35rem;
+    color: var(--c2id-text);
+    display: flex;
+    gap: 0.55rem;
+    margin: 0;
+    min-width: 0;
+    padding: 0.55rem 0.65rem;
+    text-align: left;
+}
+
+.consent-item .form-check-input {
+    flex: 0 0 auto;
+    margin: 0.2rem 0 0;
+}
+
+.consent-item tt {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
 .login-form {
     margin: 0;
 }

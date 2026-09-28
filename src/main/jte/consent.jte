@@ -42,12 +42,12 @@
 				@if(!newScopes.isEmpty())
 					<div class="col-md-6">
 						<strong>${msg.get("consent.new")}</strong>
-						<div class="mt-1">
+						<div class="consent-items mt-2">
 							@for(var scope : newScopes)
 								@if(scope == "openid")
-									<label class="form-check-label me-3"><input class="form-check-input me-1" type="checkbox" form="consentForm" name="scope" value="${scope}" checked disabled> <tt>${scope}</tt></label>
+									<label class="consent-item"><input class="form-check-input" type="checkbox" form="consentForm" name="scope" value="${scope}" checked disabled> <tt>${scope}</tt></label>
 								@else
-									<label class="form-check-label me-3"><input class="form-check-input me-1" type="checkbox" form="consentForm" name="scope" value="${scope}"> <tt>${scope}</tt></label>
+									<label class="consent-item"><input class="form-check-input" type="checkbox" form="consentForm" name="scope" value="${scope}"> <tt>${scope}</tt></label>
 								@endif
 							@endfor
 						</div>
@@ -56,12 +56,12 @@
 				@if(!consentedScopes.isEmpty())
 					<div class="col-md-6">
 						<strong>${msg.get("consent.previous")}</strong>
-						<div class="mt-1">
+						<div class="consent-items mt-2">
 							@for(var scope : consentedScopes)
 								@if(scope == "openid")
-									<label class="form-check-label me-3"><input class="form-check-input me-1" type="checkbox" form="consentForm" name="scope" value="${scope}" checked disabled> <tt>${scope}</tt></label>
+									<label class="consent-item"><input class="form-check-input" type="checkbox" form="consentForm" name="scope" value="${scope}" checked disabled> <tt>${scope}</tt></label>
 								@else
-									<label class="form-check-label me-3"><input class="form-check-input me-1" type="checkbox" form="consentForm" name="scope" value="${scope}" checked> <tt>${scope}</tt></label>
+									<label class="consent-item"><input class="form-check-input" type="checkbox" form="consentForm" name="scope" value="${scope}" checked> <tt>${scope}</tt></label>
 								@endif
 							@endfor
 						</div>
@@ -83,9 +83,9 @@
 						@if(!newEssentialClaims.isEmpty())
 							<div class="mt-2">
 								<strong>${msg.get("consent.essential")}</strong>
-								<div class="mt-1">
+								<div class="consent-items mt-2">
 									@for(var claim : newEssentialClaims)
-										<label class="form-check-label me-3"><input class="form-check-input me-1" type="checkbox" form="consentForm" name="claim" value="${claim}"> <tt>${claim}</tt></label>
+										<label class="consent-item"><input class="form-check-input" type="checkbox" form="consentForm" name="claim" value="${claim}"> <tt>${claim}</tt></label>
 									@endfor
 								</div>
 							</div>
@@ -93,9 +93,9 @@
 						@if(!newVoluntaryClaims.isEmpty())
 							<div class="mt-2">
 								<strong>${msg.get("consent.voluntary")}:</strong>
-								<div class="mt-1">
+								<div class="consent-items mt-2">
 									@for(var claim : newVoluntaryClaims)
-										<label class="form-check-label me-3"><input class="form-check-input me-1" type="checkbox" form="consentForm" name="claim" value="${claim}"> <tt>${claim}</tt></label>
+										<label class="consent-item"><input class="form-check-input" type="checkbox" form="consentForm" name="claim" value="${claim}"> <tt>${claim}</tt></label>
 									@endfor
 								</div>
 							</div>
@@ -108,9 +108,9 @@
 						@if(!consentedEssentialClaims.isEmpty())
 							<div class="mt-2">
 								<strong>${msg.get("consent.essential")}:</strong>
-								<div class="mt-1">
+								<div class="consent-items mt-2">
 									@for(var claim : consentedEssentialClaims)
-										<label class="form-check-label me-3"><input class="form-check-input me-1" type="checkbox" form="consentForm" name="claim" value="${claim}" checked> <tt>${claim}</tt></label>
+										<label class="consent-item"><input class="form-check-input" type="checkbox" form="consentForm" name="claim" value="${claim}" checked> <tt>${claim}</tt></label>
 									@endfor
 								</div>
 							</div>
@@ -118,9 +118,9 @@
 						@if(!consentedVoluntaryClaims.isEmpty())
 							<div class="mt-2">
 								<strong>${msg.get("consent.voluntary")}:</strong>
-								<div class="mt-1">
+								<div class="consent-items mt-2">
 									@for(var claim : consentedVoluntaryClaims)
-										<label class="form-check-label me-3"><input class="form-check-input me-1" type="checkbox" form="consentForm" name="claim" value="${claim}" checked> <tt>${claim}</tt></label>
+										<label class="consent-item"><input class="form-check-input" type="checkbox" form="consentForm" name="claim" value="${claim}" checked> <tt>${claim}</tt></label>
 									@endfor
 								</div>
 							</div>
