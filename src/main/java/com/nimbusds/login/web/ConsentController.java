@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,14 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 public class ConsentController {
+
+	private static final List<String> SCOPE_ORDER = List.of(
+			"openid", "profile", "email", "address", "phone", "offline_access");
+	private static final List<String> CLAIM_ORDER = List.of(
+			"sub", "name", "family_name", "given_name", "middle_name", "nickname",
+			"preferred_username", "profile", "picture", "website", "gender", "birthdate",
+			"zoneinfo", "locale", "updated_at", "email", "email_verified", "address",
+			"phone_number", "phone_number_verified");
 
 	private final Logger logger = LoggerFactory.getLogger(ConsentController.class);
 	private final C2idAuthService authService;
@@ -112,14 +121,16 @@ public class ConsentController {
 			model.addAttribute("clientName", client.get("name"));
 			model.addAttribute("clientId", client.get("client_id"));
 		}
-		model.addAttribute("newScopes", nestedList(authzResponse, "scope", "new"));
-		model.addAttribute("consentedScopes", nestedList(authzResponse, "scope", "consented"));
-		model.addAttribute("newEssentialClaims", nestedList(authzResponse, "claims", "new", "essential"));
-		model.addAttribute("newVoluntaryClaims", nestedList(authzResponse, "claims", "new", "voluntary"));
+		model.addAttribute("newScopes", ordered(nestedList(authzResponse, "scope", "new"), SCOPE_ORDER));
+		model.addAttribute("consentedScopes", ordered(nestedList(authzResponse, "scope", "consented"), SCOPE_ORDER));
+		model.addAttribute("newEssentialClaims",
+				ordered(nestedList(authzResponse, "claims", "new", "essential"), CLAIM_ORDER));
+		model.addAttribute("newVoluntaryClaims",
+				ordered(nestedList(authzResponse, "claims", "new", "voluntary"), CLAIM_ORDER));
 		model.addAttribute("consentedEssentialClaims",
-				nestedList(authzResponse, "claims", "consented", "essential"));
+				ordered(nestedList(authzResponse, "claims", "consented", "essential"), CLAIM_ORDER));
 		model.addAttribute("consentedVoluntaryClaims",
-				nestedList(authzResponse, "claims", "consented", "voluntary"));
+				ordered(nestedList(authzResponse, "claims", "consented", "voluntary"), CLAIM_ORDER));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -161,5 +172,14 @@ public class ConsentController {
 			return (List<String>) value;
 		}
 		return Collections.emptyList();
+	}
+
+	private List<String> ordered(List<String> values, List<String> priority) {
+		return values.stream()
+				.sorted(Comparator.comparingInt((String value) -> {
+					int index = priority.indexOf(value);
+					return index >= 0 ? index : priority.size();
+				}).thenComparing(String::compareTo))
+				.toList();
 	}
 }
