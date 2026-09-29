@@ -131,7 +131,7 @@
 		</div>
 	@endif
 
-	<div class="login-actions mt-4">
+	<div class="login-actions mt-4 mb-5">
 		<div>
 			<form id="consentForm" method="post" action="${contextPath}/consent">
 				<input type="hidden" name="authSessionId" value="${authSessionId}">
