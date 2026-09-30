@@ -25,22 +25,7 @@ public class C2idLogin extends SpringBootServletInitializer {
 
 	@EventListener({ContextRefreshedEvent.class})
 	public void initialize(ContextRefreshedEvent e) {
-		printServerInfo((ConfigurableApplicationContext) e.getApplicationContext());
-	}
-
-	@Override
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return builder(application, true);
-	}
-
-	static SpringApplicationBuilder builder(SpringApplicationBuilder b, boolean isWar, Class<?>... sources) {
-		b.sources(C2idLogin.class);
-		b.sources(sources);
-		b.web(WebApplicationType.SERVLET);
-		return b;
-	}
-
-	static void printServerInfo(ConfigurableApplicationContext context) {
+		ConfigurableApplicationContext context = (ConfigurableApplicationContext) e.getApplicationContext();
 		if (context instanceof WebServerApplicationContext webServerContext) {
 			Environment environment = context.getEnvironment();
 			String scheme = Boolean.parseBoolean(environment.getProperty("server.ssl.enabled", "false"))
@@ -54,11 +39,26 @@ public class C2idLogin extends SpringBootServletInitializer {
 	}
 
 	/**
-	 * Main method, used to run the application.
-	 *
+	 * WAR entry point.
+	 * @param application the Spring app builder object
+	 */
+	@Override
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+		return builder(application);
+	}
+
+	static SpringApplicationBuilder builder(SpringApplicationBuilder b, Class<?>... sources) {
+		b.sources(C2idLogin.class);
+		b.sources(sources);
+		b.web(WebApplicationType.SERVLET);
+		return b;
+	}
+
+	/**
+	 * Main method entry point, used to run the application.
 	 * @param args the command line arguments
 	 */
 	public static void main(String[] args) {
-		builder(new SpringApplicationBuilder(), true).run(args);
+		builder(new SpringApplicationBuilder()).run(args);
 	}
 }

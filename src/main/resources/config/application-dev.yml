@@ -28,7 +28,7 @@ gg:
 server:
     port: 8000
     servlet:
-      context-path: /c2id-login
+      context-path: /c2id-login-logout
 
 spring:
     web:

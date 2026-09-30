@@ -58,9 +58,9 @@
     <logger name="sun.rmi" level="WARN"/>
     <logger name="sun.rmi.transport" level="WARN"/>
 
-<!--    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
         <resetJUL>true</resetJUL>
-    </contextListener>-->
+    </contextListener>
 
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>

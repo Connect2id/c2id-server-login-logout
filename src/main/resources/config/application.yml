@@ -35,9 +35,11 @@ management:
             show-details: NEVER
 
 server:
+    port: 8080
     error:
         path: /error
     servlet:
+        context-path: /c2id-login-logout
         application-display-name: Connect2id Login & Logout Page #project.version#
         session:
             cookie:
