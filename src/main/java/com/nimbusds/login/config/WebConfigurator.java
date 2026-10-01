@@ -54,10 +54,14 @@ public class WebConfigurator implements ServletContextInitializer,
 		if (!StringUtils.isBlank(authenticatorClass)) {
 			for (UserAuthenticator authImpl : ServiceLoader.load(UserAuthenticator.class)) {
 				if (authImpl != null && authenticatorClass.equalsIgnoreCase(authImpl.getClass().getSimpleName())) {
+					logger.info("Using UserAuthenticator implementation: {}", authImpl.getClass().getName());
 					return authImpl;
 				}
 			}
+			logger.warn("No UserAuthenticator implementation found for '{}', using {}",
+					authenticatorClass, LdapUserAuthenticator.class.getName());
 		}
+		logger.info("Using UserAuthenticator implementation: {}", LdapUserAuthenticator.class.getName());
 		return new LdapUserAuthenticator(config);
 	}
 }
