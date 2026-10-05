@@ -28,7 +28,7 @@ gg:
 server:
     port: 8080
     servlet:
-      context-path: /c2id-login-logout
+      context-path: /c2id-login
     compression:
         enabled: true
         mime-types: text/html,text/xml,text/plain,text/css, application/javascript, application/json
@@ -45,9 +45,9 @@ server:
 # Add your own application properties here, see the ApplicationProperties class
 # ===================================================================
 
-c2id:
-    endpoint: https://demo.c2id.com
-    cookieName: sid
+#c2id:
+#    endpoint: https://demo.c2id.com
+#    cookieName: sid
 #    authz:
 #        # Connect2id authorisation session API vars
 #        # See https://connect2id.com/products/server/docs/integration/authz-session

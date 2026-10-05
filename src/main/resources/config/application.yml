@@ -39,7 +39,7 @@ server:
     error:
         path: /error
     servlet:
-        context-path: /c2id-login-logout
+        context-path: /c2id-login
         application-display-name: Connect2id Login & Logout Page #project.version#
         session:
             cookie:
