@@ -69,7 +69,7 @@ public class LdapSubjectResolver implements FederatedSubjectResolver {
 		if (StringUtils.isBlank(provider) || StringUtils.isBlank(upstreamSubject)) {
 			throw new AuthenticationException("Federated authentication has no subject.");
 		}
-		return lookup(provider + "_" + upstreamSubject);
+		return lookup(subjectPrefix(provider, upstreamSubject));
 	}
 
 	private User lookup(String uid) throws AuthenticationException {

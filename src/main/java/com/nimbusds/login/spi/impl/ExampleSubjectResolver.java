@@ -50,11 +50,12 @@ public class ExampleSubjectResolver implements FederatedSubjectResolver {
 		if (!(authentication instanceof OAuth2AuthenticationToken oauthToken)) {
 			throw new AuthenticationException("Unsupported federated authentication.");
 		}
+
 		if (authentication.getPrincipal() instanceof OidcUser oidcUser) {
 			String provider = oauthToken.getAuthorizedClientRegistrationId();
 			oidcUser.getSubject();
 			User u = new User();
-			u.setId(provider + "_" + oidcUser.getSubject());
+			u.setId(subjectPrefix(provider, oidcUser.getSubject()));
 			u.setName(oidcUser.getFullName());
 			u.setUsername(oidcUser.getEmail());
 			u.setEmail(oidcUser.getEmail());

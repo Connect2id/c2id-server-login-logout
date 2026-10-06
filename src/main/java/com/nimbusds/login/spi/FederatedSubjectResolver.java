@@ -31,4 +31,14 @@ public interface FederatedSubjectResolver {
 
 	public User resolve(Authentication authentication) throws AuthenticationException;
 
+	/**
+	 * Override this method to provide a custom prefix for external subject IDs.
+	 * @param thirdPartyIdpProvider provider name or lowercase ID
+	 * @param thirdPartySubjectId subject ID from third-party IdP
+	 * @return a new {@code sub} with a prefix
+	 */
+	public default String subjectPrefix(String thirdPartyIdpProvider, String thirdPartySubjectId) {
+		return "urn:idp:" + thirdPartyIdpProvider + ":" + thirdPartySubjectId;
+	}
+
 }

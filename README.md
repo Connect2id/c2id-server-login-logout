@@ -488,7 +488,7 @@ sure which implementation is active. The application logs a warning if the value
 identity to a local Connect2id subject. The interface has one method:
 
 ```java
-    User resolve(Authentication authentication) throws AuthenticationException;
+User resolve(Authentication authentication) throws AuthenticationException;
 ```
 
 The resolver receives the already authenticated Spring Security `Authentication`. For an
