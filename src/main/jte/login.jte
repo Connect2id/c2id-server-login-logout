@@ -10,7 +10,9 @@
 @param String username = null
 @param String requiredSubject = null
 @param boolean selectAccount = false
+@param String csrfToken = ""
 @param boolean createAccount = false
+@param boolean isDemo = false
 @param boolean accountSelectionError = false
 @param List<Map<String, Object>> availableAccounts = null
 @param String contextPath
@@ -19,7 +21,7 @@
 @param String scriptsPath
 
 @template.layout(title = msg.get("login.title"), msg = msg, contextPath = contextPath,
-	imagesPath = imagesPath, stylesPath = stylesPath, scriptsPath = scriptsPath, content = @`
+	imagesPath = imagesPath, stylesPath = stylesPath, scriptsPath = scriptsPath, csrfToken = csrfToken, content = @`
 	<div class="login-page">
 		<div class="login-intro text-center">
 			<h1>${msg.get("login.title")}</h1>
@@ -39,6 +41,7 @@
 					<div class="account-list mb-4">
 						@for(var account : availableAccounts)
 							<form method="post" action="${contextPath}/login/select" class="account-option-form">
+								<input type="hidden" name="_csrf" value="${csrfToken}">
 								<input type="hidden" name="authSessionId" value="${authSessionId}">
 								<input type="hidden" name="slot" value="${String.valueOf(account.get("slot"))}">
 								<button type="submit" class="account-option">
@@ -49,6 +52,7 @@
 					</div>
 				@endif
 				<form method="post" action="${contextPath}/login/new-account" class="account-option-form">
+					<input type="hidden" name="_csrf" value="${csrfToken}">
 					<input type="hidden" name="authSessionId" value="${authSessionId}">
 					<button type="submit" class="btn btn-outline-primary login-cancel w-100 mt-4">
 						${msg.get("login.newAccount")}
@@ -62,6 +66,7 @@
 			@endif
 			@if(!selectAccount)
 			<form class="login-form" role="form" method="post" action="${actionUrl}">
+				<input type="hidden" name="_csrf" value="${csrfToken}">
 				<div class="form-field">
 					<label for="username">${msg.get("login.form.username")}</label>
 					<input type="text" class="form-control" id="username" name="username" value="${username}"
@@ -73,7 +78,9 @@
 					<input type="password" class="form-control" id="password" name="password"
 						placeholder="${msg.get("login.form.password.placeholder")}" required>
 				</div>
+				@if(isDemo)
 				<p class="form-text login-hint">${msg.get("login.hint")}</p>
+				@endif
 				<div class="login-actions">
 					<button type="submit" class="btn btn-primary login-submit">${msg.get("global.login")}</button>
 					<a href="${cancelUrl}" class="btn btn-outline-primary login-cancel" role="button">${msg.get("global.cancel")}</a>
@@ -82,4 +89,14 @@
 			@endif
 		</div>
 	</div>
+	@if(isDemo)
+	<div class="col-md-12 text-center">
+		<small class="login-hint">
+			This sample <a href="https://connect2id.com/products/server">Connect2id server</a> Login &amp;
+			Logout Page can be <a target="_blank" href="https://github.com/Connect2id/c2id-server-login-logout#customization">customized</a>
+			<br>
+			Questions? Email <a href="mailto:support@connect2id.com">support@connect2id.com</a>
+		</small>
+	</div>
+	@endif
 `)

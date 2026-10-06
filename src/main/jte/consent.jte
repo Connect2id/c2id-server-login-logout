@@ -17,11 +17,13 @@
 @param String imagesPath
 @param String stylesPath
 @param String scriptsPath
+@param String csrfToken = ""
+
 
 @template.layout(title = msg.get("consent.title"), msg = msg, contextPath = contextPath,
 	authSessionId = authSessionId, authenticatedUser = authenticatedUser,
 	logoutUrl = contextPath + "/consent/logout",
-	imagesPath = imagesPath, stylesPath = stylesPath, scriptsPath = scriptsPath, content = @`
+	imagesPath = imagesPath, stylesPath = stylesPath, scriptsPath = scriptsPath, csrfToken = csrfToken, content = @`
 	<div class="row mt-2">
 		<div class="col-md-12 text-center">
 
@@ -134,6 +136,7 @@
 	<div class="login-actions mt-4 mb-5">
 		<div>
 			<form id="consentForm" method="post" action="${contextPath}/consent">
+				<input type="hidden" name="_csrf" value="${csrfToken}">
 				<input type="hidden" name="authSessionId" value="${authSessionId}">
 				<input type="hidden" name="scope" value="openid">
 				<button type="submit" class="btn btn-primary login-submit w-100">${msg.get("consent.form.button")}</button>
@@ -141,6 +144,7 @@
 		</div>
 		<div>
 			<form method="post" action="${contextPath}/consent/deny">
+				<input type="hidden" name="_csrf" value="${csrfToken}">
 				<input type="hidden" name="authSessionId" value="${authSessionId}">
 				<button type="submit" class="btn btn-outline-primary login-cancel w-100">${msg.get("global.cancel")}</button>
 			</form>

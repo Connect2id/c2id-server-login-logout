@@ -4,6 +4,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 
 /**
  * Sets and removes cookies.
@@ -51,25 +53,41 @@ public final class CookieManager {
 	 */
 	public static void addCookie(final String cookieName, final String cookieValue, HttpServletRequest request,
 			final HttpServletResponse response, boolean httpOnly, int maxAgeSeconds) {
-		Cookie cookie = new Cookie(cookieName, cookieValue);
-		cookie.setPath("/");
-		cookie.setMaxAge(maxAgeSeconds);
-		cookie.setHttpOnly(httpOnly);
-		cookie.setSecure(request.isSecure());
-		response.addCookie(cookie);
+		String path = StringUtils.trimToEmpty(request.getContextPath());
+		if (path.isEmpty() || path.charAt(0) != '/') {
+			path = "/";
+		}
+		ResponseCookie cookie = ResponseCookie.from(cookieName, cookieValue)
+				.path(path)
+				.maxAge(maxAgeSeconds)
+				.httpOnly(httpOnly)
+				.secure(request.isSecure())
+				.sameSite("Lax")
+				.build();
+		response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 	}
 
 	/**
 	 * Remove a cookie using the specified HTTP servlet response.
 	 *
 	 * @param cookieName The cookie name.
+	 * @param request The HTTP servlet request to use.
 	 * @param response The HTTP servlet response to use.
 	 */
-	public static void removeCookie(final String cookieName, final HttpServletResponse response) {
-		Cookie cookie = new Cookie(cookieName, "");
-		cookie.setMaxAge(0);
-		cookie.setPath("/");
-		response.addCookie(cookie);
+	public static void removeCookie(final String cookieName, HttpServletRequest request,
+			final HttpServletResponse response) {
+		String path = StringUtils.trimToEmpty(request.getContextPath());
+		if (path.isEmpty() || path.charAt(0) != '/') {
+			path = "/";
+		}
+		ResponseCookie cookie = ResponseCookie.from(cookieName, "")
+				.path(path)
+				.maxAge(0)
+				.httpOnly(true)
+				.secure(request.isSecure())
+				.sameSite("Lax")
+				.build();
+		response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 	}
 
 }

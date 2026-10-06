@@ -2,6 +2,7 @@ package com.nimbusds.login.web;
 
 import com.nimbusds.login.auth.AuthenticationException;
 import com.nimbusds.login.auth.InvalidCredentialsException;
+import com.nimbusds.login.config.ApplicationProperties;
 import com.nimbusds.login.domain.User;
 import com.nimbusds.login.rest.utils.SessionCookieManager;
 import com.nimbusds.login.service.C2idAuthService;
@@ -37,13 +38,15 @@ public class LoginController {
 	private final AuthzResponseDispatcher dispatcher;
 	private final LocaleResolver localeResolver;
 	private final SessionCookieManager sessionCookieManager;
+	private final ApplicationProperties config;
 
 	public LoginController(C2idAuthService authService, AuthzResponseDispatcher dispatcher,
-			LocaleResolver localeResolver, SessionCookieManager sessionCookieManager) {
+			LocaleResolver localeResolver, SessionCookieManager sessionCookieManager, ApplicationProperties config) {
 		this.authService = authService;
 		this.dispatcher = dispatcher;
 		this.localeResolver = localeResolver;
 		this.sessionCookieManager = sessionCookieManager;
+		this.config = config;
 	}
 
 	@GetMapping("/login")
@@ -55,6 +58,7 @@ public class LoginController {
 		model.addAttribute("cancelUrl", request.getContextPath() + "/login/cancel" + Utils.querySuffix(request));
 		model.addAttribute("authSessionId", request.getParameter("authSessionId"));
 		model.addAttribute("authenticationError", false);
+		model.addAttribute("isDemo", config.getAuthz().getAccessToken().equals("ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6"));
 		boolean newAccountMode = Boolean.TRUE.equals(request.getSession().getAttribute("newAccountLogin"));
 		Utils.populatePrompt(model, authPrompt, newAccountMode);
 		if (authPrompt != null && !newAccountMode) {

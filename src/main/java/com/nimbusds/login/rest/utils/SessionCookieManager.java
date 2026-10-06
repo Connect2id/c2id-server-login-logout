@@ -94,7 +94,7 @@ public class SessionCookieManager {
 			}
 		}
 		for (String slot : removedSlots) {
-			CookieManager.removeCookie(SLOT_PREFIX + slot, response);
+			CookieManager.removeCookie(SLOT_PREFIX + slot, request, response);
 		}
 		if (removedSlots.isEmpty()) {
 			return;
@@ -102,8 +102,8 @@ public class SessionCookieManager {
 		String current = CookieManager.getCookie(request, CURRENT_SESSION_COOKIE);
 		String next = sessions.keySet().stream().findFirst().orElse(null);
 		if (next == null) {
-			CookieManager.removeCookie(SESSION_LIST_COOKIE, response);
-			CookieManager.removeCookie(CURRENT_SESSION_COOKIE, response);
+			CookieManager.removeCookie(SESSION_LIST_COOKIE, request, response);
+			CookieManager.removeCookie(CURRENT_SESSION_COOKIE, request, response);
 		} else {
 			writeRegistry(request, response, legacyCookieName, sessions,
 				removedSlots.contains(current) ? next : current);
@@ -121,7 +121,7 @@ public class SessionCookieManager {
 			CookieManager.addCookie(CURRENT_SESSION_COOKIE, currentSlot, request, response, true, SESSION_MAX_AGE);
 		}
 		if (CookieManager.getCookie(request, legacyCookieName) != null) {
-			CookieManager.removeCookie(legacyCookieName, response);
+			CookieManager.removeCookie(legacyCookieName, request, response);
 		}
 	}
 

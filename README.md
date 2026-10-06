@@ -16,6 +16,7 @@ It supports:
 - Query, fragment, and `form_post` OpenID Connect response modes.
 - User avatar rendering from the OIDC `picture` claim when available.
 - Spring Boot Actuator health checks.
+- Spring Security with CSRF protection enabled and `SameSite` cookies.
 
 The project has no client-side build step and does not use NodeJS tooling.
 
@@ -88,7 +89,9 @@ c2id:
     defaultPostLogoutRedirectUri: https://example.com/
 ```
 
-Do not commit production tokens or API keys. Prefer environment variables or an external configuration source.
+Do not commit production tokens or API keys. The default configuration reads them from
+`C2ID_AUTHZ_ACCESS_TOKEN`, `C2ID_SESSION_ACCESS_TOKEN`, `LDAPAUTH_API_KEY`, and
+`C2ID_LOGOUT_ACCESS_TOKEN`. The application defaults to the demo credentials at startup.
 
 ### Application properties
 

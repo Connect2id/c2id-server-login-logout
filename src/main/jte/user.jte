@@ -7,6 +7,7 @@
 @param Map<String, Object> authenticatedUser = null
 @param String contextPath
 @param String logoutUrl
+@param String csrfToken = ""
 
 @if(authenticatedUser != null)
 	<div class="user-card">
@@ -29,6 +30,7 @@
 			@endif
 			@if(logoutUrl != null)
 				<form method="post" action="${logoutUrl}" class="user-logout">
+					<input type="hidden" name="_csrf" value="${csrfToken}">
 					<input type="hidden" name="authSessionId" value="${authSessionId}">
 				<button type="submit" class="btn btn-link">${msg.get("global.logout")}</button>
 				</form>

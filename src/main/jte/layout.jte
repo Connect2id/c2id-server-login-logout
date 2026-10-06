@@ -10,6 +10,7 @@
 @param String imagesPath
 @param String stylesPath
 @param String scriptsPath
+@param String csrfToken = ""
 
 @param String authSessionId = null
 @param Map<String, Object> authenticatedUser = null
@@ -34,7 +35,7 @@
 		</a>
 		@if(authenticatedUser != null)
 			@template.user(msg = msg, authSessionId = authSessionId, authenticatedUser = authenticatedUser,
-				contextPath = contextPath, logoutUrl = logoutUrl)
+				contextPath = contextPath, logoutUrl = logoutUrl, csrfToken = csrfToken)
 		@else
 			<span class="auth-header-label">${Utils.getAppName()}</span>
 		@endif

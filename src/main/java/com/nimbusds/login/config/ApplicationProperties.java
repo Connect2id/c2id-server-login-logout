@@ -77,11 +77,11 @@ public class ApplicationProperties {
 		public void setAccessToken(String accessToken) {
 			this.accessToken = accessToken;
 		}
-        
+
         public boolean isLongLived() {
             return longLived;
         }
-        
+
         public void setLongLived(boolean longLived) {
             this.longLived = longLived;
         }

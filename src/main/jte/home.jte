@@ -11,10 +11,12 @@
 @param String imagesPath
 @param String stylesPath
 @param String scriptsPath
+@param String csrfToken = ""
+
 
 @template.layout(title = msg.get("global.title"), msg = msg, authSessionId = authSessionId,
 	authenticatedUser = authenticatedUser, logoutUrl = contextPath + "/logout/local", contextPath = contextPath, imagesPath = imagesPath,
-	stylesPath = stylesPath, scriptsPath = scriptsPath, content = @`
+	stylesPath = stylesPath, scriptsPath = scriptsPath, csrfToken = csrfToken, content = @`
 	<div class="row mt-5">
 		<div class="col-md-12 text-center">
 			@if(authenticatedUser != null)
@@ -26,6 +28,7 @@
 					</div>
 				@endif
 				<form method="post" action="${contextPath}/logout/local" class="mt-2">
+						<input type="hidden" name="_csrf" value="${csrfToken}">
 						<button type="submit" class="btn btn-info">${msg.get("global.logout")}</button>
 					</form>
 			@else
