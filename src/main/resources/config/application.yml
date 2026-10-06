@@ -65,22 +65,22 @@ c2id:
         # Connect2id authorisation session API vars
         # See https://connect2id.com/products/server/docs/integration/authz-session
         resourcePath: /authz-sessions/rest/v3
-        accessToken: ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6
+        accessToken: ${C2ID_AUTHZ_ACCESS_TOKEN:ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6}
         longLived: true
     session:
         # Connect2id user session store API vars
         # See https://connect2id.com/products/server/docs/integration/session-store
         resourcePath: /session-store/rest/v2
-        accessToken: ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6
+        accessToken: ${C2ID_SESSION_ACCESS_TOKEN:ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6}
     ldapAuth:
         # LdapAuth API var (username + password verification against LDAP directory)
         # See https://connect2id.com/products/ldapauth/web-api
-        endpoint: http://localhost:8080/ldapauth/
-        apiKey: f70defbeb88141f88138bea52b6e1b9c
+        endpoint: http://127.0.0.1:8080/ldapauth/
+        apiKey: ${LDAPAUTH_API_KEY:f70defbeb88141f88138bea52b6e1b9c}
     logout:
         # Logout (End-Session) vars
         # See https://connect2id.com/products/server/docs/integration/logout-session
         resourcePath: /logout-sessions/rest/v1
-        accessToken: ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6
+        accessToken: ${C2ID_LOGOUT_ACCESS_TOKEN:ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6}
         # Optional fallback when the RP does not provide post_logout_redirect_uri.
         defaultPostLogoutRedirectUri:
