@@ -97,7 +97,7 @@ public class ConsentController {
 			throws IOException {
 		logger.debug("Submitting subject logout request to Connect2id server.");
 		String sessionId = sessionCookieManager.getCurrentSessionId(request, authService.getConfig().getCookieName());
-		authService.logoutSubject(sessionId);
+		authService.logoutSessionConfirm(sessionId, false);
 		sessionCookieManager.removeSession(request, response, authService.getConfig().getCookieName(), sessionId);
 		// The session id cookie was removed, so the flow starts with a blank session
 		String queryString = (String) request.getSession().getAttribute("c2idQueryString");

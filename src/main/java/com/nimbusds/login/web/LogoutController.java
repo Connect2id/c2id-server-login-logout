@@ -76,14 +76,6 @@ public class LogoutController {
 		}
 	}
 
-	/**
-	 * Abandons a logout request without calling the logout API.
-	 */
-	@PostMapping("/logout/cancel")
-	public String cancelLogout() {
-		return "redirect:/";
-	}
-
 	private String startLogout(HttpServletRequest request, HttpServletResponse response,
 			Model model, boolean providerInitiated) {
 		String sessionId = sessionCookieManager.getCurrentSessionId(request, authService.getConfig().getCookieName());

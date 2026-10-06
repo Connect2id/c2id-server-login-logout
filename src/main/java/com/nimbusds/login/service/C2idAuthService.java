@@ -189,20 +189,6 @@ public class C2idAuthService {
 	}
 
 	/**
-	 * Logs out the subject (end-user) and returns to the login screen.
-	 *
-	 * @param sid subject session id (SID)
-	 * @throws IOException If the web API request failed.
-	 */
-	public void logoutSubject(String sid) throws IOException {
-		Request.Delete(config.getEndpoint() + config.getSession().getResourcePath() + "/sessions").
-				addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + config.getAuthz().getAccessToken()).
-				addHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8").
-				addHeader("SID", sid).
-				execute();
-	}
-
-	/**
 	 * Retrieves an individual subject session. Used for SID verification.
 	 * @param sessionId the subject SID
 	 * @return a session object
