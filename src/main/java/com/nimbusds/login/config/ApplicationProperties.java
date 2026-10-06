@@ -15,6 +15,7 @@ public class ApplicationProperties {
 	public String endpoint;
 	public String cookieName; // session id cookie
 	public String authenticatorClass;
+	public String subjectResolverClass;
 
 	public Authz getAuthz() {
 		return authz;
@@ -54,6 +55,14 @@ public class ApplicationProperties {
 
 	public void setAuthenticatorClass(String authenticatorClass) {
 		this.authenticatorClass = authenticatorClass;
+	}
+
+	public String getSubjectResolverClass() {
+		return subjectResolverClass;
+	}
+
+	public void setSubjectResolverClass(String subjectResolverClass) {
+		this.subjectResolverClass = subjectResolverClass;
 	}
 
 	public boolean isDemoMode() {

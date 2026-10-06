@@ -69,7 +69,7 @@ public class WebConfigurator implements ServletContextInitializer,
 
 	@Bean
 	public FederatedSubjectResolver subjectResolver(ApplicationProperties config) {
-		String resolverClass = config.getAuthenticatorClass();
+		String resolverClass = config.getSubjectResolverClass();
 		if (!StringUtils.isBlank(resolverClass)) {
 			for (FederatedSubjectResolver resolverImpl : ServiceLoader.load(FederatedSubjectResolver.class)) {
 				if (resolverImpl != null && resolverClass.equalsIgnoreCase(resolverImpl.getClass().getSimpleName())) {

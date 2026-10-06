@@ -178,81 +178,6 @@ it to the Connect2id authorisation-session API. Replace this simple subject mapp
 a database-backed account mapping before production use. See the
 [Connect2id identity federation guide](https://connect2id.com/products/server/docs/guides/identity-federation).
 
-#### Implementing `FederatedSubjectResolver`
-
-`FederatedSubjectResolver` maps an authenticated upstream OAuth 2.0 / OpenID Connect
-identity to a local Connect2id subject. The interface is in
-`src/main/java/com/nimbusds/login/spi/FederatedSubjectResolver.java`:
-
-```java
-public interface FederatedSubjectResolver {
-
-    User resolve(Authentication authentication) throws AuthenticationException;
-}
-```
-
-The resolver receives the already authenticated Spring Security `Authentication`. For an
-OIDC provider, cast the principal to `OidcUser` and read `getSubject()`. For a plain OAuth
-2.0 provider, use the `OAuth2User` attributes and `getName()`. Include the provider
-registration ID or issuer in the lookup key. Do not use an email address as the permanent
-identity key.
-
-The returned `User` must contain the local Connect2id subject ID in `id`:
-
-```java
-public final class MyFederatedSubjectResolver implements FederatedSubjectResolver {
-
-    @Override
-    public User resolve(Authentication authentication) throws AuthenticationException {
-        OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
-        OAuth2User upstream = (OAuth2User) token.getPrincipal();
-        String provider = token.getAuthorizedClientRegistrationId();
-        String upstreamSub = upstream.getName();
-
-        String localSub = accountMapping.find(provider, upstreamSub);
-        if (localSub == null) {
-            throw new AuthenticationException("Federated account is not linked.");
-        }
-
-        User user = new User();
-        user.setId(localSub);
-        user.setUsername(upstream.getAttribute("email"));
-        user.setName(upstream.getAttribute("name"));
-        user.setEmail(upstream.getAttribute("email"));
-        return user;
-    }
-}
-```
-
-The `id` value is submitted to Connect2id by
-`C2idAuthService.authenticateFederatedSubject(...)`. That method creates the new
-Connect2id subject session and continues the pending authorisation session. The resolver
-must not set a password or call `UserAuthenticator`.
-
-For LDAP-backed mappings, the resolver can call the LdapAuth `user.get` JSON-RPC method
-with the upstream mapping key. This method retrieves directory attributes without a user
-password. Configure the LdapAuth API key and enable `user.get` in LdapAuth; do not use
-`user.authGet` for federation because that method requires the user's password. The
-example resolver is `ExampleSubjectResolver` in
-`src/main/java/com/nimbusds/login/spi/impl`.
-
-To load a custom resolver, implement the interface and register the full class name in:
-
-```text
-src/main/resources/META-INF/services/com.nimbusds.login.spi.FederatedSubjectResolver
-```
-
-For example:
-
-```text
-com.example.login.MyFederatedSubjectResolver
-```
-
-Set the simple class name through `c2id.authenticatorClass` when selecting the custom
-SPI implementation. `WebConfigurator` uses `ServiceLoader` and falls back to
-`ExampleSubjectResolver` when no matching resolver is registered. The resolver must have
-a public no-argument constructor when loaded through `ServiceLoader`.
-
 ### Spring Boot, JTE, and Actuator properties
 
 | Property | Description | Default / profile value |
@@ -528,28 +453,8 @@ fills the `User` from `result.attributes`, and returns the parsed JSON-RPC respo
 
 ### Loading a custom implementation
 
-`WebConfigurator` selects the implementation at startup.
-
-```java
-@Bean
-public UserAuthenticator userAuthenticator(ApplicationProperties config) {
-    String authenticatorClass = config.getAuthenticatorClass();
-    if (!StringUtils.isBlank(authenticatorClass)) {
-        for (UserAuthenticator authImpl : ServiceLoader.load(UserAuthenticator.class)) {
-            if (authImpl != null && authenticatorClass.equalsIgnoreCase(authImpl.getClass().getSimpleName())) {
-                logger.info("Using UserAuthenticator implementation: {}", authImpl.getClass().getName());
-                return authImpl;
-            }
-        }
-        logger.warn("No UserAuthenticator implementation found for '{}', using {}", authenticatorClass,
-                LdapUserAuthenticator.class.getName());
-    }
-    logger.info("Using UserAuthenticator implementation: {}", LdapUserAuthenticator.class.getName());
-    return new LdapUserAuthenticator(config);
-}
-```
-
-Four rules follow from this code.
+The `WebConfigurator` class selects the implementation at startup using `ServiceLoader`.
+To load a custom `FederatedSubjectResolver` follow these steps:
 
 1. Put the new class in `src/main/java`, for example in the package `com.nimbusds.login.spi.impl`, and
    implement `UserAuthenticator`.
@@ -557,7 +462,7 @@ Four rules follow from this code.
    so the class cannot need constructor parameters. Read the configuration with
    `@Value` or with the Spring `Environment` instead of with a constructor argument.
 3. Register the class in `src/main/resources/META-INF/services/com.nimbusds.login.spi.UserAuthenticator`.
-   Put the full class name on one line.
+   Put the full class name on one line inside that file:
 
    ```text
    com.nimbusds.login.spi.impl.MyUserAuthenticator
@@ -575,6 +480,65 @@ c2id:
 The application logs the loaded implementation class name at startup. Check the log if you are not
 sure which implementation is active. The application logs a warning if the value of
 `c2id.authenticatorClass` matches no registered class.
+
+
+## Implementing `FederatedSubjectResolver`
+
+`FederatedSubjectResolver` maps an authenticated upstream OAuth 2.0 / OpenID Connect
+identity to a local Connect2id subject. The interface has one method:
+
+```java
+    User resolve(Authentication authentication) throws AuthenticationException;
+```
+
+The resolver receives the already authenticated Spring Security `Authentication`. For an
+OIDC provider, cast the principal to `OidcUser` and read `getSubject()`. For a plain OAuth
+2.0 provider, use the `OAuth2User` attributes and `getName()`. Include the provider
+registration ID or issuer in the lookup key. Do not use an email address as the permanent
+identity key.
+
+The returned `User` must contain the local Connect2id subject ID in `id`:
+The `id` value is submitted to Connect2id by `C2idAuthService.authenticateFederatedSubject(...)`.
+That method creates the new Connect2id subject session and continues the pending authorisation session.
+The resolver must not set a password or call `UserAuthenticator`.
+
+For LDAP-backed mappings, the resolver can call the LdapAuth `user.get` JSON-RPC method
+with the upstream mapping key. This method retrieves directory attributes without a user
+password. Configure the LdapAuth API key and enable `user.get` in LdapAuth; do not use
+`user.authGet` for federation because that method requires the user's password.
+There are two implementations that come with this login page:
+
+- [`LdapSubjectResolver`](src/main/java/com/nimbusds/login/spi/impl/LdapSubjectResolver.java) - relies on LdapAuth for looking up users via the "user.get" method
+- [`ExampleSubjectResolver`](src/main/java/com/nimbusds/login/spi/impl/ExampleSubjectResolver.java) - a simple custom mapper
+
+### Loading a custom implementation
+
+To load a custom `FederatedSubjectResolver` follow these steps:
+
+1. Put the new class in `src/main/java`, for example in the package `com.nimbusds.login.spi.impl`, and
+   implement `FederatedSubjectResolver`.
+2. The class must have a public constructor with no arguments. `ServiceLoader` creates the object,
+   so the class cannot need constructor parameters. Read the configuration with
+   `@Value` or with the Spring `Environment` instead of with a constructor argument.
+3. Register the class in `src/main/resources/META-INF/services/com.nimbusds.login.spi.FederatedSubjectResolver`.
+   Put the full class name on one line inside that file:
+
+   ```text
+   com.nimbusds.login.spi.impl.MyFederatedSubjectResolver
+   ```
+
+4. Set the simple class name of the implementation. The comparison ignores case. A missing property,
+   an empty value, or a name that no registered class matches means that the application uses
+   `LdapUserAuthenticator`.
+
+```yaml
+c2id:
+    subjectResolverClass: MyFederatedSubjectResolver
+```
+
+The application logs the loaded implementation class name at startup. Check the log if you are not
+sure which implementation is active. The application logs a warning if the value of
+`c2id.subjectResolverClass` matches no registered class.
 
 ## OpenID Connect endpoints
 
