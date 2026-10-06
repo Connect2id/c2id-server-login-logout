@@ -1,14 +1,19 @@
 # Connect2id Server Login / Logout UI
 
-A server-side rendered login and consent page for a [Connect2id server](https://connect2id.com/products/server).
-The application uses Spring Boot 4+, Java 21+, JTE templates, Bootstrap 5, and minimal browser JavaScript.
+Production-ready, server-side rendered login, logout and consent page for a [Connect2id server](https://connect2id.com/products/server).
+The application uses Java 21+, Spring Boot, Spring Security, JTE templates, Bootstrap 5, and **zero JavaScript**!
 
-It supports:
+![Screenshot](c2id_login.png)
+
+## Features
+
+The sample login page supports:
 
 - OpenID Connect authentication and consent flows.
 - RP-initiated logout through a server-rendered logout page.
 - RP-only and OpenID provider-wide logout choices.
 - Front-channel logout notifications and post-logout redirection.
+- Third-party [identity federation](https://connect2id.com/products/server/docs/guides/identity-federation) support
 - Integration with the Connect2id server via the [logout session web API](https://connect2id.com/products/server/docs/integration/logout-session).
 - Supports LDAP authentication through the Connect2id LdapAuth JSON-RPC 2.0 service.
 - Custom `UserAuthenticator` implementations through the existing SPI.
@@ -112,6 +117,43 @@ These properties are bound by `ApplicationProperties` with the `c2id` prefix.
 | `c2id.logout.resourcePath` | Logout-session API path. | `/logout-sessions/rest/v1` |
 | `c2id.logout.accessToken` | Long-lived bearer token for the logout-session API. | Required secret |
 | `c2id.logout.defaultPostLogoutRedirectUri` | Fallback redirect when the RP does not provide `post_logout_redirect_uri`. | Empty; no redirect |
+
+### Third-party identity federation
+
+This login page can act as an OAuth 2.0 / OpenID Connect client for any provider configured
+in Spring Security, such as Okta, Facebook, GitHub, Microsoft, or Google. Configure one or
+more client registrations without committing client secrets:
+
+```yaml
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          provider-id:
+            provider: provider-id
+            client-id: ${OAUTH2_PROVIDER_CLIENT_ID}
+            client-secret: ${OAUTH2_PROVIDER_CLIENT_SECRET}
+            authorization-grant-type: authorization_code
+            scope: openid, profile, email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          provider-id:
+            issuer-uri: https://issuer.example.com
+```
+
+For OAuth 2.0 providers without OpenID Connect, configure the provider's
+`authorization-uri`, `token-uri`, `user-info-uri`, and `user-name-attribute` instead of
+`issuer-uri`, and use the scopes required by that provider.
+
+Register the callback URL with the upstream provider. It is:
+`https://your-host/c2id-login/login/oauth2/code/{registrationId}`.
+
+Each configured registration is displayed as a login button. The application validates
+the upstream login, namespaces the subject as `{registrationId}:<subject>`, and submits
+it to the Connect2id authorisation-session API. Replace this simple subject mapping with
+a database-backed account mapping before production use. See the
+[Connect2id identity federation guide](https://connect2id.com/products/server/docs/guides/identity-federation).
 
 ### Spring Boot, JTE, and Actuator properties
 
