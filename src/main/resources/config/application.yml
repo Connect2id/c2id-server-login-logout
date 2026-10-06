@@ -38,12 +38,16 @@ server:
     port: 8080
     error:
         path: /error
+    # Trust X-Forwarded-Proto / X-Forwarded-Host so that request.isSecure() returns true
+    # behind a TLS-terminating proxy, which keeps the Secure flag on the session cookies.
+    forward-headers-strategy: framework
     servlet:
         context-path: /c2id-login
         application-display-name: Connect2id Login & Logout Page #project.version#
         session:
             cookie:
                 http-only: true
+                same-site: lax
 
 info:
     project:
