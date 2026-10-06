@@ -167,18 +167,27 @@ public class LoginController {
 	/**
 	 * The subject (end-user) cancels the login and is returned to the OpenID client with
 	 * an "access_denied" error.
+	 *
+	 * <p>The cancellation is submitted to the Connect2id server, which validates the client
+	 * redirection URI against the client registration and builds the error response. The
+	 * "redirect_uri" request parameter is never used as a redirect target on its own, so this
+	 * endpoint cannot be turned into an open redirect on the OpenID provider origin.
 	 */
 	@GetMapping("/login/cancel")
-	public String cancel(@RequestParam(name = "redirect_uri", required = false) String redirectUri,
-			@RequestParam(required = false) String state, HttpServletRequest request) {
+	public String cancel(HttpServletRequest request, HttpServletResponse response, Model model,
+			@RequestParam(name = "authSessionId", required = false) String authSessionId) {
 		request.getSession().removeAttribute("c2idAuthPrompt");
 		request.getSession().removeAttribute("newAccountLogin");
-		if (StringUtils.isBlank(redirectUri)) {
+		if (StringUtils.isBlank(authSessionId)) {
 			return "redirect:/";
 		}
-		String delim = !redirectUri.contains("?") ? "?" : "&";
-		return "redirect:" + redirectUri + delim + "state=" + state + "&error=access_denied" +
-				"&error_description=The user canceled the authentication.";
+		try {
+			Map<String, Object> authzResponse = authService.cancelAuthRequest(authSessionId);
+			return dispatcher.dispatch(authzResponse, request, response, model);
+		} catch (IOException e) {
+			logger.error("Failed to cancel the authentication request: {}", e.getMessage());
+			return "redirect:/";
+		}
 	}
 
 	private String loginError(Model model, HttpServletRequest request, User user) {
