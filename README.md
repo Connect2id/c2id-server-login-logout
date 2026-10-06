@@ -17,11 +17,13 @@ The sample login page supports:
 - Integration with the Connect2id server via the [logout session web API](https://connect2id.com/products/server/docs/integration/logout-session).
 - Supports LDAP authentication through the Connect2id LdapAuth JSON-RPC 2.0 service.
 - Custom `UserAuthenticator` implementations through the existing SPI.
+- Custom `FederatedSubjectResolver` for mapping federated accounts to Connect2id subjects, through the existing SPI.
 - Subject session verification and logout through the Connect2id APIs.
 - Query, fragment, and `form_post` OpenID Connect response modes.
+- Spring Security with CSRF protection enabled and `SameSite` cookies.
 - User avatar rendering from the OIDC `picture` claim when available.
 - Spring Boot Actuator health checks.
-- Spring Security with CSRF protection enabled and `SameSite` cookies.
+- Full internationalization support
 
 The project has no client-side build step and does not use NodeJS tooling.
 

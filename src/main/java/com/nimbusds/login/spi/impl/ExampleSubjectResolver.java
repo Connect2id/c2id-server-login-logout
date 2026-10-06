@@ -37,6 +37,14 @@ public class ExampleSubjectResolver implements FederatedSubjectResolver {
 		this.config = config;
 	}
 
+	/**
+	 * This is just an example of a custom mapping between the third-party IdP and Connect2id.
+	 * In a real scenario, this method would look up the user by {@code sub} or any other attribute,
+	 * and return that user before continuing the authorization flow.
+	 * @param authentication a Spring Security Authentication object
+	 * @return a Connect2id user
+	 * @throws AuthenticationException thrown if authentication is of the wrong type, or no matching user was found.
+	 */
 	@Override
 	public User resolve(Authentication authentication) throws AuthenticationException {
 		if (!(authentication instanceof OAuth2AuthenticationToken oauthToken)) {
