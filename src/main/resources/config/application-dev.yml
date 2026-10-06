@@ -31,6 +31,21 @@ server:
       context-path: /c2id-login
 
 spring:
+    security:
+        oauth2:
+          client:
+            registration:
+              google:
+                provider: Google
+                client-id: 4711250984-l7rtg7bkqsk8rolvg4tcdll5ciff0dfc.apps.googleusercontent.com
+                client-secret: Hdbo2Kp_Ja7uFT2-2TNKtISM
+                authorization-grant-type: authorization_code
+                scope: openid, profile, email
+                redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            provider:
+              google:
+                user-name-attribute: sub
+                issuer-uri: https://google.com
     web:
         resources:
             cache:

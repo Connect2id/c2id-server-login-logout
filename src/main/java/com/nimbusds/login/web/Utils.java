@@ -245,7 +245,7 @@ public class Utils {
 		model.addAttribute("accountSelectionError", true);
 		model.addAttribute("authenticationError", false);
 		model.addAttribute("actionUrl", currentUrl(request));
-		model.addAttribute("cancelUrl", request.getContextPath() + "/login/cancel" + querySuffix(request));
+		model.addAttribute("cancelUrl", cancelUrl(request));
 		model.addAttribute("authSessionId", authSessionId);
 		populatePrompt(model, authPrompt(request),
 				Boolean.TRUE.equals(request.getSession().getAttribute("newAccountLogin")));
@@ -254,6 +254,16 @@ public class Utils {
 
 	public static String currentUrl(HttpServletRequest request) {
 		return request.getContextPath() + "/login" + querySuffix(request);
+	}
+
+	/**
+	 * Builds the login cancellation URL using only the authorisation-session ID. The original
+	 * client request is retained in the server HTTP session and is not copied into this URL.
+	 */
+	public static String cancelUrl(HttpServletRequest request) {
+		String authSessionId = request.getParameter("authSessionId");
+		return request.getContextPath() + "/login/cancel?authSessionId="
+				+ (authSessionId == null ? "" : URLEncoder.encode(authSessionId, StandardCharsets.UTF_8));
 	}
 
 	public static String querySuffix(HttpServletRequest request) {

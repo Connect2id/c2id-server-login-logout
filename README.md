@@ -96,7 +96,8 @@ c2id:
 
 Do not commit production tokens or API keys. The default configuration reads them from
 `C2ID_AUTHZ_ACCESS_TOKEN`, `C2ID_SESSION_ACCESS_TOKEN`, `LDAPAUTH_API_KEY`, and
-`C2ID_LOGOUT_ACCESS_TOKEN`. The application defaults to the demo credentials at startup.
+`C2ID_LOGOUT_ACCESS_TOKEN`. The application fails at startup when the required credentials
+are missing.
 
 ### Application properties
 
@@ -142,6 +143,26 @@ spring:
             issuer-uri: https://issuer.example.com
 ```
 
+Here's an example for Google:
+```yml
+spring:
+    security:
+        oauth2:
+          client:
+            registration:
+              google:
+                provider: Google
+                client-id: 123.apps.googleusercontent.com
+                client-secret: secret
+                authorization-grant-type: authorization_code
+                scope: openid, profile, email
+                redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            provider:
+              google:
+                user-name-attribute: sub
+                issuer-uri: https://google.com
+```
+
 For OAuth 2.0 providers without OpenID Connect, configure the provider's
 `authorization-uri`, `token-uri`, `user-info-uri`, and `user-name-attribute` instead of
 `issuer-uri`, and use the scopes required by that provider.
@@ -154,6 +175,81 @@ the upstream login, namespaces the subject as `{registrationId}:<subject>`, and 
 it to the Connect2id authorisation-session API. Replace this simple subject mapping with
 a database-backed account mapping before production use. See the
 [Connect2id identity federation guide](https://connect2id.com/products/server/docs/guides/identity-federation).
+
+#### Implementing `FederatedSubjectResolver`
+
+`FederatedSubjectResolver` maps an authenticated upstream OAuth 2.0 / OpenID Connect
+identity to a local Connect2id subject. The interface is in
+`src/main/java/com/nimbusds/login/spi/FederatedSubjectResolver.java`:
+
+```java
+public interface FederatedSubjectResolver {
+
+    User resolve(Authentication authentication) throws AuthenticationException;
+}
+```
+
+The resolver receives the already authenticated Spring Security `Authentication`. For an
+OIDC provider, cast the principal to `OidcUser` and read `getSubject()`. For a plain OAuth
+2.0 provider, use the `OAuth2User` attributes and `getName()`. Include the provider
+registration ID or issuer in the lookup key. Do not use an email address as the permanent
+identity key.
+
+The returned `User` must contain the local Connect2id subject ID in `id`:
+
+```java
+public final class MyFederatedSubjectResolver implements FederatedSubjectResolver {
+
+    @Override
+    public User resolve(Authentication authentication) throws AuthenticationException {
+        OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
+        OAuth2User upstream = (OAuth2User) token.getPrincipal();
+        String provider = token.getAuthorizedClientRegistrationId();
+        String upstreamSub = upstream.getName();
+
+        String localSub = accountMapping.find(provider, upstreamSub);
+        if (localSub == null) {
+            throw new AuthenticationException("Federated account is not linked.");
+        }
+
+        User user = new User();
+        user.setId(localSub);
+        user.setUsername(upstream.getAttribute("email"));
+        user.setName(upstream.getAttribute("name"));
+        user.setEmail(upstream.getAttribute("email"));
+        return user;
+    }
+}
+```
+
+The `id` value is submitted to Connect2id by
+`C2idAuthService.authenticateFederatedSubject(...)`. That method creates the new
+Connect2id subject session and continues the pending authorisation session. The resolver
+must not set a password or call `UserAuthenticator`.
+
+For LDAP-backed mappings, the resolver can call the LdapAuth `user.get` JSON-RPC method
+with the upstream mapping key. This method retrieves directory attributes without a user
+password. Configure the LdapAuth API key and enable `user.get` in LdapAuth; do not use
+`user.authGet` for federation because that method requires the user's password. The
+example resolver is `ExampleSubjectResolver` in
+`src/main/java/com/nimbusds/login/spi/impl`.
+
+To load a custom resolver, implement the interface and register the full class name in:
+
+```text
+src/main/resources/META-INF/services/com.nimbusds.login.spi.FederatedSubjectResolver
+```
+
+For example:
+
+```text
+com.example.login.MyFederatedSubjectResolver
+```
+
+Set the simple class name through `c2id.authenticatorClass` when selecting the custom
+SPI implementation. `WebConfigurator` uses `ServiceLoader` and falls back to
+`ExampleSubjectResolver` when no matching resolver is registered. The resolver must have
+a public no-argument constructor when loaded through `ServiceLoader`.
 
 ### Spring Boot, JTE, and Actuator properties
 

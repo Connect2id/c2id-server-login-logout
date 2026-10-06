@@ -55,10 +55,10 @@ public class LoginController {
 		Map<String, Object> authPrompt = Utils.authPrompt(request);
 		applyRequestedLocale(authPrompt, request, response);
 		model.addAttribute("actionUrl", Utils.currentUrl(request));
-		model.addAttribute("cancelUrl", request.getContextPath() + "/login/cancel" + Utils.querySuffix(request));
+		model.addAttribute("cancelUrl", Utils.cancelUrl(request));
 		model.addAttribute("authSessionId", request.getParameter("authSessionId"));
 		model.addAttribute("authenticationError", false);
-		model.addAttribute("isDemo", config.getAuthz().getAccessToken().equals("ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6"));
+		model.addAttribute("isDemo", config.isDemoMode());
 		boolean newAccountMode = Boolean.TRUE.equals(request.getSession().getAttribute("newAccountLogin"));
 		Utils.populatePrompt(model, authPrompt, newAccountMode);
 		if (authPrompt != null && !newAccountMode) {
@@ -180,13 +180,21 @@ public class LoginController {
 	@GetMapping("/login/cancel")
 	public String cancel(HttpServletRequest request, HttpServletResponse response, Model model,
 			@RequestParam(name = "authSessionId", required = false) String authSessionId) {
+		String pendingSessionId = authSessionId;
+		Object prompt = request.getSession().getAttribute("c2idAuthPrompt");
+		if (prompt instanceof Map<?, ?> authPrompt && authPrompt.get("sid") != null) {
+			String promptSessionId = String.valueOf(authPrompt.get("sid"));
+			if (!promptSessionId.equals(authSessionId)) {
+				return "redirect:/";
+			}
+		}
 		request.getSession().removeAttribute("c2idAuthPrompt");
 		request.getSession().removeAttribute("newAccountLogin");
-		if (StringUtils.isBlank(authSessionId)) {
+		if (StringUtils.isBlank(pendingSessionId)) {
 			return "redirect:/";
 		}
 		try {
-			Map<String, Object> authzResponse = authService.cancelAuthRequest(authSessionId);
+			Map<String, Object> authzResponse = authService.cancelAuthRequest(pendingSessionId);
 			return dispatcher.dispatch(authzResponse, request, response, model);
 		} catch (IOException e) {
 			logger.error("Failed to cancel the authentication request: {}", e.getMessage());
@@ -198,8 +206,9 @@ public class LoginController {
 		model.addAttribute("authenticationError", true);
 		model.addAttribute("username", user.getUsername());
 		model.addAttribute("actionUrl", Utils.currentUrl(request));
-		model.addAttribute("cancelUrl", request.getContextPath() + "/login/cancel" + Utils.querySuffix(request));
+		model.addAttribute("cancelUrl", Utils.cancelUrl(request));
 		model.addAttribute("authSessionId", request.getParameter("authSessionId"));
+		model.addAttribute("isDemo", config.isDemoMode());
 		Utils.populatePrompt(model, Utils.authPrompt(request),
 				Boolean.TRUE.equals(request.getSession().getAttribute("newAccountLogin")));
 		return "login";
@@ -247,7 +256,6 @@ public class LoginController {
 		return accounts;
 	}
 
-
 	@SuppressWarnings("unchecked")
 	private void applyRequestedLocale(Map<String, Object> prompt, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -264,5 +272,4 @@ public class LoginController {
 			}
 		}
 	}
-
 }

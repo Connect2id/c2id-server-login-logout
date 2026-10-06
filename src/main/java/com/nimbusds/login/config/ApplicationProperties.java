@@ -56,6 +56,10 @@ public class ApplicationProperties {
 		this.authenticatorClass = authenticatorClass;
 	}
 
+	public boolean isDemoMode() {
+		return getAuthz().getAccessToken().equals("ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6");
+	}
+
 	public static class Authz {
 
 		private String resourcePath;

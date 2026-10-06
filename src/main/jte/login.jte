@@ -11,6 +11,7 @@
 @param String requiredSubject = null
 @param boolean selectAccount = false
 @param String csrfToken = ""
+@param List<Map<String, String>> federatedProviders = null
 @param boolean createAccount = false
 @param boolean isDemo = false
 @param boolean accountSelectionError = false
@@ -60,6 +61,7 @@
 				</form>
 			@endif
 			@if(authenticationError)
+			${isDemo}
 				<div class="alert alert-danger login-alert" role="alert">
 					<p><strong>${msg.get("error.authentication")}</strong></p>
 				</div>
@@ -86,13 +88,22 @@
 					<a href="${cancelUrl}" class="btn btn-outline-primary login-cancel" role="button">${msg.get("global.cancel")}</a>
 				</div>
 			</form>
+			@if(federatedProviders != null && !federatedProviders.isEmpty() && authSessionId != null)
+				<hr class="my-4" />
+				@for(var provider : federatedProviders)
+					<a href="${contextPath}/login/federated/${provider.get("registrationId")}?authSessionId=${authSessionId}"
+						class="btn btn-outline-primary login-cancel w-100" role="button">
+						${msg.get("login.federated", provider.get("clientName"))}
+					</a>
+				@endfor
+			@endif
 			@endif
 		</div>
 	</div>
 	@if(isDemo)
-	<div class="col-md-12 text-center">
+	<div class="col-md-12 text-center mb-3">
 		<small class="login-hint">
-			This sample <a href="https://connect2id.com/products/server">Connect2id server</a> Login &amp;
+			This sample <a target="_blank" href="https://connect2id.com/products/server">Connect2id server</a> Login &amp;
 			Logout Page can be <a target="_blank" href="https://github.com/Connect2id/c2id-server-login-logout#customization">customized</a>
 			<br>
 			Questions? Email <a href="mailto:support@connect2id.com">support@connect2id.com</a>

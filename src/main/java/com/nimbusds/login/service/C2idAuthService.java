@@ -146,6 +146,47 @@ public class C2idAuthService {
 	}
 
 	/**
+	 * Creates a Connect2id subject session for a subject already authenticated by a
+	 * federated identity provider and continues the pending authorisation session.
+	 *
+	 * <p>This method does not call the configured username/password authenticator. The
+	 * federated subject resolver has already mapped the upstream account to a local subject.
+	 *
+	 * @param user the locally mapped subject
+	 * @param authSessionId the pending Connect2id authorisation-session SID
+	 * @return the next Connect2id authorisation response
+	 * @throws IOException if the Connect2id request fails
+	 * @throws AuthenticationException if the mapped subject is invalid
+	 */
+	public Map<String, Object> authenticateFederatedSubject(User user, String authSessionId)
+			throws IOException, AuthenticationException {
+		if (user == null || StringUtils.isBlank(user.getId())) {
+			throw new AuthenticationException("Federated subject resolver returned no local subject.");
+		}
+		if (StringUtils.isBlank(authSessionId)) {
+			throw new AuthenticationException("Federated authentication has no authorisation session.");
+		}
+		Map<String, Object> body = new HashMap<>();
+		body.put("sub", user.getId());
+		Map<String, String> data = new HashMap<>();
+		if (StringUtils.isNotBlank(user.getName())) {
+			data.put("name", user.getName());
+		}
+		if (StringUtils.isNotBlank(user.getEmail())) {
+			data.put("email", user.getEmail());
+		}
+		if (!data.isEmpty()) {
+			body.put("data", data);
+		}
+		return Request.Put(config.getEndpoint() + config.getAuthz().getResourcePath() + "/" + authSessionId).
+				addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + config.getAuthz().getAccessToken()).
+				addHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8").
+				body(new ByteArrayEntity(jsonMapper.writeValueAsBytes(body))).
+				execute().
+				handleResponse((hr) -> handleC2idResponse(hr));
+	}
+
+	/**
 	 * Handles the subject (end-user) authentication response from the LdapAuth JSON-RPC 2.0 service. On success subject
 	 * (end-user) ID is submitted to the Connect2id server, along with a few other details to create a new subject
 	 * (end-user) session.

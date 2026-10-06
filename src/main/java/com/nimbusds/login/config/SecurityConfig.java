@@ -1,9 +1,12 @@
 package com.nimbusds.login.config;
 
+import com.nimbusds.login.web.FederatedLoginSuccessHandler;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
@@ -12,7 +15,9 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 public class SecurityConfig {
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity http,
+			FederatedLoginSuccessHandler successHandler,
+			ObjectProvider<ClientRegistrationRepository> clientRegistrations) throws Exception {
 		http
 				.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
 				.authorizeHttpRequests(auth -> auth
@@ -21,6 +26,7 @@ public class SecurityConfig {
 								"/login/**",
 								"/logout/**",
 								"/consent/**",
+								"/oauth2/**",
 								"/err/**",
 								"/error",
 								"/actuator/health",
@@ -35,6 +41,9 @@ public class SecurityConfig {
 				.formLogin(form -> form.disable())
 				.logout(logout -> logout.disable())
 				.httpBasic(basic -> basic.disable());
+		if (clientRegistrations.getIfAvailable() != null) {
+			http.oauth2Login(oauth -> oauth.loginPage("/login").successHandler(successHandler));
+		}
 		return http.build();
 	}
 }

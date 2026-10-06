@@ -1,17 +1,19 @@
 package com.nimbusds.login.config;
 
+import com.nimbusds.login.spi.FederatedSubjectResolver;
 import com.nimbusds.login.spi.UserAuthenticator;
+import com.nimbusds.login.spi.impl.ExampleSubjectResolver;
 import com.nimbusds.login.spi.impl.LdapUserAuthenticator;
-import java.util.ServiceLoader;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
+import java.util.ServiceLoader;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.server.MimeMappings;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
-import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.boot.web.server.servlet.ConfigurableServletWebServerFactory;
+import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -63,5 +65,22 @@ public class WebConfigurator implements ServletContextInitializer,
 		}
 		logger.info("Using UserAuthenticator implementation: {}", LdapUserAuthenticator.class.getName());
 		return new LdapUserAuthenticator(config);
+	}
+
+	@Bean
+	public FederatedSubjectResolver subjectResolver(ApplicationProperties config) {
+		String resolverClass = config.getAuthenticatorClass();
+		if (!StringUtils.isBlank(resolverClass)) {
+			for (FederatedSubjectResolver resolverImpl : ServiceLoader.load(FederatedSubjectResolver.class)) {
+				if (resolverImpl != null && resolverClass.equalsIgnoreCase(resolverImpl.getClass().getSimpleName())) {
+					logger.info("Using FederatedSubjectResolver implementation: {}", resolverImpl.getClass().getName());
+					return resolverImpl;
+				}
+			}
+			logger.warn("No FederatedSubjectResolver implementation found for '{}', using {}",
+					resolverClass, ExampleSubjectResolver.class.getName());
+		}
+		logger.info("Using FederatedSubjectResolver implementation: {}", ExampleSubjectResolver.class.getName());
+		return new ExampleSubjectResolver(config);
 	}
 }
