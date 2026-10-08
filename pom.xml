@@ -10,7 +10,7 @@
 
 	<groupId>com.nimbusds</groupId>
 	<artifactId>c2id-server-login-logout</artifactId>
-	<version>5.0.0</version>
+	<version>5.0.0-beta</version>
 	<packaging>war</packaging>
 	<name>Connect2id server login &amp; logout page</name>
 
@@ -40,6 +40,15 @@
 		<url>https://github.com/Connect2id/c2id-server-login-logout</url>
 		<tag>HEAD</tag>
 	</scm>
+
+	<!-- Publishes the WAR and attached release artifacts to GitHub Packages. -->
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub Connect2id Apache Maven Packages</name>
+			<url>https://maven.pkg.github.com/connect2id/c2id-server-login-logout</url>
+		</repository>
+	</distributionManagement>
 
 	<issueManagement>
 		<system>GitHub</system>
