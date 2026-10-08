@@ -299,7 +299,8 @@ public class C2idAuthService {
 	/**
 	 * Puts a logout confirmation to the logout session API.
 	 *
-	 * @param sessionId The subject SID, {@code null} if not found.
+	 * @param logoutSessionId The logout session ID.
+	 * @param opLogout {@code true} to confirm logout at the OpenID provider.
 	 * @return the logout end message
 	 * @throws IOException If the web API request failed.
 	 */

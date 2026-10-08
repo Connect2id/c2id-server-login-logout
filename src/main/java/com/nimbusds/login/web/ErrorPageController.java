@@ -19,10 +19,36 @@ public class ErrorPageController implements ErrorController {
 
 	private final Messages messages;
 
+	/**
+	 * Creates a new ErrorPageController with the given messages utility.
+	 *
+	 * @param messages the messages utility for adding template attributes
+	 */
 	public ErrorPageController(Messages messages) {
 		this.messages = messages;
 	}
 
+	/**
+	 * Handles the Spring Boot error dispatch path and renders the error page directly.
+	 *
+	 * @param request the HTTP servlet request
+	 * @param model the model to add attributes to
+	 * @return the name of the error view
+	 */
+	@RequestMapping("/error")
+	public String errorPage(HttpServletRequest request, Model model) {
+		messages.addTemplateAttributes(model, request);
+		return "error";
+	}
+
+	/**
+	 * Renders an error page for a specific error message encoded in the URL path.
+	 *
+	 * @param msg the URL-safe Base64 encoded error message
+	 * @param request the HTTP servlet request
+	 * @param model the model to add attributes to
+	 * @return the name of the error view
+	 */
 	@GetMapping("/err/{msg}")
 	public String errorMessage(@PathVariable String msg, HttpServletRequest request, Model model) {
 		messages.addTemplateAttributes(model, request);
@@ -30,17 +56,15 @@ public class ErrorPageController implements ErrorController {
 		return "error";
 	}
 
+	/**
+	 * Renders a generic error page without a specific error message.
+	 *
+	 * @param request the HTTP servlet request
+	 * @param model the model to add attributes to
+	 * @return the name of the error view
+	 */
 	@GetMapping("/err")
 	public String error(HttpServletRequest request, Model model) {
-		messages.addTemplateAttributes(model, request);
-		return "error";
-	}
-
-	/**
-	 * Handles the Spring Boot error dispatch path and renders the error page directly.
-	 */
-	@RequestMapping("/error")
-	public String errorPage(HttpServletRequest request, Model model) {
 		messages.addTemplateAttributes(model, request);
 		return "error";
 	}
