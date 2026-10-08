@@ -45,7 +45,7 @@ application.
 
 ## Build and run
 
-Build the executable WAR:
+Build the executable WAR for production:
 
 ```bash
 ./mvnw -Pprod clean package
@@ -54,7 +54,7 @@ Build the executable WAR:
 Run it with the embedded Tomcat:
 
 ```bash
-java -jar target/c2id-login-*.war
+java -jar target/c2id-login.war
 ```
 
 The same WAR can be deployed to an external Tomcat server. JTE templates are precompiled during
@@ -96,10 +96,19 @@ c2id:
     defaultPostLogoutRedirectUri: https://example.com/
 ```
 
-Do not commit production tokens or API keys. The default configuration reads them from
-`C2ID_AUTHZ_ACCESS_TOKEN`, `C2ID_SESSION_ACCESS_TOKEN`, `LDAPAUTH_API_KEY`, and
-`C2ID_LOGOUT_ACCESS_TOKEN`. The application fails at startup when the required credentials
-are missing.
+Access tokens for the web APIs are picked up from these environment variables first:
+- `C2ID_AUTHZ_ACCESS_TOKEN`
+- `C2ID_SESSION_ACCESS_TOKEN`
+- `LDAPAUTH_API_KEY`
+- `C2ID_LOGOUT_ACCESS_TOKEN`
+
+If the environment does not contain any values, the same access tokens can be provided as Java system properties, like this:
+
+```
+-Dc2id.authz.accessToken=<token>
+```
+
+**Note:** Java system properties have the highest precedence in the application configuration.
 
 ### Application properties
 
@@ -120,6 +129,8 @@ These properties are bound by `ApplicationProperties` with the `c2id` prefix.
 | `c2id.logout.resourcePath` | Logout-session API path. | `/logout-sessions/rest/v1` |
 | `c2id.logout.accessToken` | Long-lived bearer token for the logout-session API. | Required secret |
 | `c2id.logout.defaultPostLogoutRedirectUri` | Fallback redirect when the RP does not provide `post_logout_redirect_uri`. | Empty; no redirect |
+| `c2id.authenticatorClass` | The simple class name of the `UserAuthenticator` implementation. | Empty |
+| `c2id.subjectResolverClass` |  The simple class name of the `FederatedSubjectResolver` implementation. | Empty |
 
 ### Third-party identity federation
 
@@ -178,7 +189,7 @@ it to the Connect2id authorisation-session API. Replace this simple subject mapp
 a database-backed account mapping before production use. See the
 [Connect2id identity federation guide](https://connect2id.com/products/server/docs/guides/identity-federation).
 
-### Spring Boot, JTE, and Actuator properties
+### Spring Boot and other configuration properties
 
 | Property | Description | Default / profile value |
 | --- | --- | --- |
@@ -485,10 +496,22 @@ sure which implementation is active. The application logs a warning if the value
 ## Implementing `FederatedSubjectResolver`
 
 `FederatedSubjectResolver` maps an authenticated upstream OAuth 2.0 / OpenID Connect
-identity to a local Connect2id subject. The interface has one method:
+identity to a local Connect2id subject. The interface has two methods:
 
 ```java
-User resolve(Authentication authentication) throws AuthenticationException;
+public interface FederatedSubjectResolver {
+	public User resolve(Authentication authentication) throws AuthenticationException;
+
+	/**
+	 * Override this method to provide a custom prefix for external subject IDs.
+	 * @param thirdPartyIdpProvider provider name or lowercase ID
+	 * @param thirdPartySubjectId subject ID from third-party IdP
+	 * @return a new {@code sub} with a prefix
+	 */
+	public default String subjectPrefix(String thirdPartyIdpProvider, String thirdPartySubjectId) {
+		return "urn:idp:" + thirdPartyIdpProvider + ":" + thirdPartySubjectId;
+	}
+}
 ```
 
 The resolver receives the already authenticated Spring Security `Authentication`. For an
