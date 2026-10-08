@@ -10,7 +10,7 @@
 
 	<groupId>com.nimbusds</groupId>
 	<artifactId>c2id-server-login-logout</artifactId>
-	<version>5.0.0-beta</version>
+	<version>5.0.0</version>
 	<packaging>war</packaging>
 	<name>Connect2id server login &amp; logout page</name>
 
