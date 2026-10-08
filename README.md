@@ -13,11 +13,12 @@ The sample login page supports:
 - RP-initiated logout through a server-rendered logout page.
 - RP-only and OpenID provider-wide logout choices.
 - Front-channel logout notifications and post-logout redirection.
+- Multi-account selection and switching between active sessions
 - Third-party [identity federation](https://connect2id.com/products/server/docs/guides/identity-federation) support
 - Integration with the Connect2id server via the [logout session web API](https://connect2id.com/products/server/docs/integration/logout-session).
 - Supports LDAP authentication through the Connect2id LdapAuth JSON-RPC 2.0 service.
 - Custom `UserAuthenticator` implementations through the existing SPI.
-- Custom `FederatedSubjectResolver` for mapping federated accounts to Connect2id subjects, through the existing SPI.
+- Custom `FederatedSubjectResolver` SPI for mapping federated accounts to Connect2id subjects.
 - Subject session verification and logout through the Connect2id APIs.
 - Query, fragment, and `form_post` OpenID Connect response modes.
 - Spring Security with CSRF protection enabled and `SameSite` cookies.
@@ -117,7 +118,7 @@ These properties are bound by `ApplicationProperties` with the `c2id` prefix.
 | Property | Description | Default |
 | --- | --- | --- |
 | `c2id.endpoint` | Base URL of the Connect2id server. | `http://127.0.0.1:8080/c2id` |
-| `c2id.cookieName` | Name of the Connect2id subject-session cookie. | `sid` |
+| `c2id.cookieName` | Base name of the active Connect2id subject-session cookie and account-session registry. | `sid` |
 | `c2id.authenticatorClass` | Simple class name of a `UserAuthenticator` loaded through `ServiceLoader`. | Empty; uses `LdapUserAuthenticator` |
 | `c2id.authz.resourcePath` | Authorisation-session API path. | `/authz-sessions/rest/v3` |
 | `c2id.authz.accessToken` | Long-lived bearer token for the authorisation-session API. | Required secret |
@@ -247,6 +248,16 @@ The application supports these routes:
 
 The application uses a client-provided `post_logout_redirect_uri` when available. Otherwise it uses
 `c2id.logout.defaultPostLogoutRedirectUri`, if configured.
+
+### Account selection and session switching
+
+The login page supports the authorization query parameter `prompt=select_account` and presents the user with an account
+switcher. Multiple SIDs are stored in a list of cookies "slots".
+
+The multi-account session registry derives its cookie names from `c2id.cookieName`. For the
+default value, the active session cookie is `sid`, the registry cookie is `sid-list`, and
+the account-slot cookies use the `sid-<slot>` format. The `sid` cookie contains the current
+Connect2id subject-session SID.
 
 ### Health endpoint
 

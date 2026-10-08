@@ -29,14 +29,16 @@
 		</div>
 		<div class="login-panel">
 			@if(selectAccount)
+				@if(accountSelectionError)
+				<div class="alert alert-danger login-alert text-center" role="alert">${msg.get("login.accountSelectionError")}</div>
+				@else
 				<div class="alert alert-info text-center" role="status">${msg.get("login.selectAccount")}</div>
+				@endif
 			@endif
 			@if(createAccount)
 				<div class="alert alert-info text-center" role="status">${msg.get("login.createAccount")}</div>
 			@endif
-			@if(accountSelectionError)
-				<div class="alert alert-danger login-alert text-center" role="alert">${msg.get("login.accountSelectionError")}</div>
-			@endif
+
 			@if(selectAccount)
 				@if(availableAccounts != null && ((selectAccount && !availableAccounts.isEmpty()) || availableAccounts.size() > 1))
 					<div class="account-list mb-4">
