@@ -67,6 +67,19 @@ Run tests with:
 ./mvnw clean test
 ```
 
+### Publishing a release
+
+Use `deploy.sh` to update the Maven version, run the tests, commit the version change, create
+the matching annotated Git tag, and push both the commit and tag:
+
+```bash
+./deploy.sh 5.0.0
+```
+
+The pushed tag starts the GitHub Actions workflow in `.github/workflows/publish-maven.yml`,
+which publishes the release WAR, source JAR, and Javadoc JAR to GitHub Packages. The script
+requires a clean working tree and a release version in `MAJOR.MINOR.PATCH` format.
+
 ## Configuration
 
 Configuration files are in `src/main/resources/config`:
